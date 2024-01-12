@@ -1,0 +1,65 @@
+[colors.normal]
+black = "#3B4252"    # Black
+red = "#BF616A"    # Red
+green = "#A3BE8C"    # Green
+yellow = "#EBCB8B"    # Yellow
+blue = "#81A1C1"    # Blue
+magenta = "#B48EAD"    # Magenta
+cyan = "#88C0D0"    # Cyan
+white = "#E5E9F0"    # White
+[colors.bright]
+black = "#4C566A"    # Bright black
+red = "#BF616A"    # Bright red
+green = "#A3BE8C"   # Bright green
+yellow = "#EBCB8B"   # Bright yellow
+blue = "#81A1C1"   # Bright blue  #1fa7b7
+magenta = "#B48EAD"   # Bright magenta
+cyan = "#8FBCBB"   # Bright cyan
+white = "#ECEFF4"   # Bright white
+[colors.primary]
+background = "#353c4a"
+foreground = "#ffffff"
+
+[cursor]
+style = { shape = "Beam", blinking = "Always" }
+vi_mode_style = { shape = "Beam", blinking = "Always" }
+blink_timeout = 0
+unfocused_hollow = true
+# cursor = "#6F7378"
+# custom_cursor_colors = true
+# text = "#E5E9F0"
+
+[font]
+size = 11.0
+
+[font.bold]
+family = "JetBrains Mono Nerd Font"
+style = "Bold"
+
+[font.bold_italic]
+family = "JetBrains Mono Nerd Font"
+style = "Bold Italic"
+
+[font.italic]
+family = "JetBrains Mono Nerd Font"
+style = "Italic"
+
+[font.normal]
+family = "JetBrains Mono Nerd Font"
+style = "Regular"
+
+[[keyboard.bindings]]
+chars = "\u0017"
+key = "Back"
+mods = "Control"
+
+[scrolling]
+history = 9000
+
+[window]
+decorations = "full"
+opacity = 0.95
+
+[window.padding]
+x = 3
+y = 3

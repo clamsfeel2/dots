@@ -1,0 +1,159 @@
+{
+		"layer": "top",
+		"modules-left": ["hyprland/workspaces", "hyprland/window"],
+		"modules-center": ["clock"],
+		"modules-right": ["tray", "cpu", "temperature", "memory", "network", "pulseaudio", "bluetooth", "backlight", "battery"],
+
+  "hyprland/window": {
+	    "format": "{title}",
+ 		"max-length": 333,
+	    "seperate-outputs": true
+  },
+  "clock": {
+	"format": "<span foreground='#cba6f7'> </span><span>{:%H:%M %a %d}</span>",
+	"tooltip-format": "{calendar}",
+	  "calendar": {
+		"mode"          : "month",
+		"mode-mon-col"  : 3,
+		"on-scroll"     : 1,
+		"on-click-right": "mode",
+		"format": {
+		  "months":     "<span color='#ffead3'><b>{}</b></span>",
+		  "days":       "<span color='#ecc6d9'><b>{}</b></span>",
+		  "weeks":      "<span color='#99ffdd'><b>{%W}</b></span>",
+		  "weekdays":   "<span color='#ffcc66'><b>{}</b></span>",
+		  "today":      "<span color='#ff6699'><b>{}</b></span>"
+			  }
+		  },
+   "actions": {
+	 "on-click-middle": "mode",
+	 "on-click-right": "shift_up",
+		"on-click": "shift_down"	   
+   }
+	/*"format-alt": "<span foreground='#89dceb'> </span><span>{:%H:%M}</span>"*/
+},
+  "cpu": {
+		  "format": "<span foreground='#89b4fa'>󰯳</span> {usage}%"
+  },
+  "memory": {
+		  "format": "<span foreground='#81ad79'>󰍛</span> {}%",
+		  "interval": 1
+  },
+  "custom/gpu-util": {
+		  "exec": "./scripts/gpu-util",
+ 		  "format": "<span foreground='#b19cd9'>󰯿</span> {}",
+		  "interval": 1
+  },
+"custom/gpu-temp": {
+		  "exec": "./scripts/gpu-temp",
+ 		  "format": "<span foreground='#eba0ac'></span> {}",
+		  "interval": 1
+  },
+  "temperature": {
+		  "hwmon-path": "/sys/class/hwmon/hwmon1/temp1_input",
+		  "critical-threshold": 80,
+		  "format": "<span foreground='#eba0ac'></span> {temperatureC}°C",
+		  "interval": 1
+  },
+  "backlight": {
+		  "device": "intel_backlight",
+		  "format": "<span foreground='#f9e2af'>{icon}</span>  {percent}%",
+		  "states": [0, 25, 50, 100],
+		  "format-icons": ["","󰃝", "󰃟", ""],
+		  "tooltip-format": "{percent}%",
+		  "tooltip": true
+  },
+
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "format-icons": {
+        "default": "",
+        "urgent": "",
+        "active": "󱓻",
+		"empty": ""
+    },
+	"persistent-workspaces": {
+		"1": [],
+		"2": [],
+		"3": [],
+		"4": [],
+		"5": []
+	},
+	"sort-by-number": true,
+	"on-click": "activate",
+	"all-outputs": false
+},
+  "battery": {
+		  "format": "<span>{icon}</span>  {capacity}%",
+		  "format-critical": "<span foreground='#F38BA8'>{icon}</span>  {capacity}%",
+		  "format-icons": ["", "", "", "", ""],
+		  "format-time": "{H}h{M}m",
+		  "format-charging": "<span foreground='#a6e3a1'>{icon}</span> <span foreground='#a6e3a1'></span> {capacity}% | {power} W",
+		  "format-full": "<span foreground='#a6e3a1'>{icon}</span> <span foreground='#a6e3a1'></span> Charged",
+		  "interval": 1,
+		  "states": {
+				  "critical": 30
+		  },
+		  "tooltip": true,
+		  "on-click": "exec dunstctl history-pop"
+  },
+   "network": {
+		  "format": "󰤭 Off",
+		  "format-wifi": "{essid} ({signalStrength}%)",
+		  "format-ethernet": "<span foreground='#b48ead'>󰈀</span>",
+		  "format-disconnected": "󰤭 Disconnected",
+		  "tooltip-format": "{ifname} via {gwaddr} ",
+		  "tooltip-format-wifi": "{essid}({signalStrength}%)  ",
+		  "tooltip-format-ethernet": "󰈀 {ifname}",
+		  "tooltip-format-disconnected": "Disconnected"
+  },
+  "pulseaudio": {
+	"format": "<span foreground='#fab387'>{icon}</span> {volume}%  {format_source}",
+	"format-bluetooth": "<span foreground='#fab387'>{icon}</span> {volume}%  {format_source}",
+	"format-bluetooth-muted": "<span foreground='#F38BA8'>󰖁</span>  {format_source}",
+	"format-muted": "<span foreground='#F38BA8'>󰖁</span>  {format_source}",
+	"format-source": "<span foreground='#fab387'></span> {volume}%",
+	"format-source-muted": "<span foreground='#F38BA8'></span>",
+	"format-icons": {
+	  "headphone": "",
+	  "phone": "",
+	  "portable": "",
+	  "default": ["", "", ""]
+	},
+	"on-click-left": "pavucontrol",
+	"input": true
+
+  },
+  "custom/playerctl": {
+		  "format": "{icon}  <span>{}</span>",
+		  "return-type": "json",
+		  "max-length": 333,
+		  "exec": "playerctl -a metadata --format '{\"text\": \"{{artist}} ~ {{markup_escape(title)}}\", \"tooltip\": \"{{playerName}} : {{markup_escape(title)}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\"}' -F",
+		  "on-click-middle": "playerctl play-pause",
+		  "on-click": "playerctl previous",
+		  "on-click-right": "playerctl next",
+		  "format-icons": {
+				  "Playing": "<span foreground='#94e2d5'></span>",
+				  "Paused": "<span foreground='#f38ba8'></span>"
+		  }
+  },
+  "tray": {
+		  "format": "{icon}",
+		  "icon-size": 14,
+		  "spacing": 5
+  },
+  "bluetooth": {
+		  "on-click": "./scripts/bluetooth-control",
+		  "on-click-right": "./scripts/rofi-bluetooth",
+		  "on-click-middle": "./scripts/rofi-bluetooth",
+		  "format": "{icon}",
+		  "interval": 15,
+		  "format-icons": {
+				  "on": "<span foreground='#88C0D0'></span>",
+				  "off": "<span foreground='#F38BA8'>󰂲</span>",
+				  "disabled": "󰂲",
+				  "connected": ""
+		  },
+		  "tooltip-format": "{device_alias} {status}"
+  }
+}
