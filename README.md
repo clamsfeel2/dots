@@ -1,4 +1,4 @@
-![desktop image](./.assets/unixpornimg.png)
+![desktop image](./.assets/img.png)
 
 # Dotfiles
 
