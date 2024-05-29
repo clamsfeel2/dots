@@ -35,6 +35,7 @@ tooltip {
   border: 2px solid @border;
 }
 
+
 #window {
 	margin: 5px 5px 2px 5px;
 	padding-left: 10px;
@@ -43,6 +44,7 @@ tooltip {
 	border-bottom: 2px solid @bg;
 	border-right: 2px solid @bg;
 	background-color: @lavender;
+/*	background-color: rgba(46, 52, 64, 0.2);*/
 	color: @bg;
 }
 
@@ -58,6 +60,7 @@ window#waybar {
 }
 
 /* Workspaces */
+/*removed 'window#waybar.solo' before #workspaces*/
 @keyframes button_activate {
 	from { opacity: .3 }
 	to { opacity: 1.; }
@@ -95,6 +98,50 @@ window#waybar {
   border: solid transparent;
 }
 
+/* Trying to get same button effect as workspaces on arch pill thing */
+#custom-arch-pill {
+  margin: 5px 5px 2px 5px;
+  padding-left: 10px;
+  padding-right: 15px;
+  border-radius: 7px;
+  background-color: @bg;
+  color: @lavender;
+}
+
+#custom-arch-pill button {
+  margin: 5px 5px 5px 5px;
+  padding-left: 7px;
+  padding-right: 3px;
+  border-radius: 3px;
+  background-color: @bg;
+  color: @lavender;
+}
+
+#custom-arch-pill button:hover {
+	border: solid transparent;
+}
+
+
+#custom-scratchpad-indicator {
+  margin: 5px 5px 2px 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 3px;
+  border-radius: 7px;
+  background-color: @bg;
+  color: @lavender;
+}
+
+
+#custom-mako {
+  margin: 5px 5px 2px 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 7px;
+  background-color: @bg;
+  color: @lavender;
+}
+
 #custom-gpu-util {
   margin: 5px 5px 2px 5px;
   padding-left: 10px;
@@ -102,6 +149,17 @@ window#waybar {
   border-radius: 7px;
   background-color: @bg;
   color: @lavender;
+}
+
+
+
+#mode {
+  margin: 5px 5px 2px 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 7px;
+  background-color: @bg;
+  color: @peach;
 }
 
 #tray {
@@ -122,6 +180,10 @@ window#waybar {
   color: @lavender;
 }
 
+/* #network.wifi, */
+/* #network.ethernet { */
+/*   color: @green; */
+/* } */
 #network.linked {
   color: @peach;
 }
@@ -151,6 +213,11 @@ window#waybar {
   border-radius: 7px;
   color: @lavender;
   background-color: @bg;
+}
+
+#custom-linebreak {
+	background-color: transparent;
+	color: @lavender;
 }
 
 #custom-playerctl {
@@ -210,11 +277,4 @@ window#waybar {
   background-color: @bg;
 }
 
-#mode {
-  margin: 5px 5px 2px 5px;
-  padding-left: 10px;
-  padding-right: 10px;
-  border-radius: 7px;
-  background-color: @bg;
-  color: @peach;
-}
+/* bottom waybar */
