@@ -1,0 +1,24 @@
+# Set the font for the lock screen
+font="JetBrains Mono Nerd Font"
+indicator-radius=50
+indicator-thickness=10
+indicator-caps-lock
+font-size=15
+# Set the background color to black
+color=000000
+# Set the ring color
+ring-color=616e88
+# Set the key highlight color
+key-hl-color=8fbcbb
+# Set the clear ring color
+ring-clear-color=616e88
+# Set the inside clear color
+inside-clear-color=616e88
+# Set the line clear color
+line-clear-color=616e88
+# Set the inside verification color
+inside-ver-color=8fbcbb
+# Set the line verification color
+line-ver-color=8fbcbb
+# Set the ring verification color
+ring-ver-color=8fbcbb

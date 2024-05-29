@@ -1,0 +1,15 @@
+[modules]
+username = [ "", true ]
+hostname = [ "", true ]
+distro = [ "", true ]
+kernel = [ "󰌢", true ]
+uptime = [ "", true ]
+shell = [ "", true ]
+dewm = [ "", true ]
+pkgs = [ "󰏖", true ]
+memory = [ "󰍛", true ]
+colors = [ "", "", true ]
+
+[general]
+show_ascii = true
+ascii_distro = ""
