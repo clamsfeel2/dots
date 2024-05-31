@@ -1,5 +1,23 @@
 shopt -s expand_aliases # Allow non-interactive shells to use aliases
 
+# The following programs and utilities are used throughout this .bash_aliases file.
+# lsd: A modern replacement for ls.
+# bat: A `cat` clone with syntax highlighting.
+# icdiff: Improved colored diff.
+# wl-copy: wl-clipboard copy cli tool.
+# espeak: Text-to-speech synthesizer.
+# spd-say: Speech-dispatcher tool.
+# zathura: A document viewer for PDFs, PostScript, etc.
+# cliphist: Clipboard history manager.
+# fzf: A command-line fuzzy finder.
+# grc: Generic colorizer for various log files and commands.
+# tree: A recursive directory listing program.
+# asciinema: Record and share terminal sessions.
+# agg: Animated GIF generator.
+# mpv: A media player.
+# gum: "A tool for glamorous shell scripts" - https://github.com/charmbracelet/gum
+# trash-cli: Command line interface to the freedesktop.org trashcan.
+
 ### BASIC CMD STUFF ###
 alias l="lsd -l --group-directories-first"
 alias la="lsd -lA --group-directories-first"
@@ -9,7 +27,6 @@ alias lss="ls -l --group-directories-first --total-size"
 alias lass="ls -lA --group-directories-first --total-size"
 alias grep="grep -C 3 -n --color=auto"
 alias mv="mv -iv"
-# Not the best idea aliasing rm, but the function helps, I think.
 alias rm="ask_if_rm_or_trashput"
 alias cp="cp -rv"
 alias diff="icdiff --report-identical-files --line-numbers --whole-file"
@@ -17,20 +34,17 @@ alias pwdc="pwd | wl-copy --trim-newline"
 alias wlc="wl-copy"
 alias cat="bat --paging=never --style=plain,header" # Make cat a bat
 alias e="fc -e ${EDITOR}" # Edit previous command in $EDITOR
-alias rnightlight="pkill wl-gammarelay && hyprctl dispatch exec wl-gammarelay" # To fix night-light
-alias rwaybar="pkill waybar ; hyprctl dispatch exec waybar" # To restart waybar
 alias zathura="zathura 2>/dev/null" # To silence gtk warnings when using zathura
 alias speak="espeak -p60 -g9 -k20 -v mb-us1" # To make computer speak
 alias say="spd-say --wait $@" # To make computer speak, better voice
-alias listaliases="bat ~/.bash_aliases" # To list all aliases with bat
-alias ea="vim ~/.bash_aliases" # Edit aliases real ez
+alias listaliases="bat $HOME/.bash_aliases" # To list all aliases with bat
+alias ea="vim $HOME/.bash_aliases" # Edit aliases real ez
 alias penv="python -m venv build" # Creates virtual env for python
 alias activate="source build/bin/activate" # Activates virual env
 alias wifiqr="nmcli device wifi show-password" # Show QR code for wifi in terminal
 alias clipclear="cliphist wipe" # Clear clipboard
 alias help="bathelp" # Creates colored output for --help, I have not figured out colored man pages yet
-alias tb="(exec 3<>/dev/tcp/termbin.com/9999; \cat >&3; \cat <&3; exec 3<&-) && echo 'add l.termbin for color'" # Pastebin alternative cat into it. put a l.termbin to get the color in the output.
-alias scanclam="sudo clamscan -rv --move=$HOME/.clamfound --exclude-dir=$HOME/Mollusk/Media/Graphene/.SeedVaultAndroidBackup/ --exclude-dir=$HOME/Mollusk/Media/Graphene/Phone/ /"
+alias tb="(exec 3<>/dev/tcp/termbin.com/9999; \cat >&3; \cat <&3; exec 3<&-) && printf 'add l.termbin for color'\n" # Pastebin alternative cat into it. put a l.termbin to get the color in the output.
 alias rd="ripdrag" # Use ripdrag easier
 alias td="tmux detach-client" # To detach tmux session
 alias ta="tmux attach-session" # To re-attach a tmux session
@@ -88,9 +102,9 @@ pdflatex() { if command pdflatex "$@"; then if [[ -d log ]]; then \mv *.aux *.lo
 empty() { truncate -s 0 "$1" && cat "$1"; }
 bathelp() { set -o pipefail; "$@" --help 2>&1 | bat --plain --language=cmd-help; }
 mux() { if [[ -z "$1" ]]; then tmux; else tmux new-session -s "$1"; fi; }
-r() { executable=$(find . -maxdepth 1 -type f -executable); if [[ -n "$executable" ]]; then $executable "$@"; else echo "Executable not found."; fi; }
+r() { executable=$(find . -maxdepth 1 -type f -executable); if [[ -n "$executable" ]]; then $executable "$@"; else printf "Executable not found.\n"; fi; }
 ask_if_rm_or_trashput() {
-	if [[ $# -eq 0 ]]; then echo "rm: missing operand" && return 1; fi
+	if [[ $# -eq 0 ]]; then printf "rm: missing operand\n" && return 1; fi
 	local force_remove=false
 	local file=""
 	local args=("$@")
@@ -100,7 +114,7 @@ ask_if_rm_or_trashput() {
 	fi
 	for file in "${args[@]}"; do
 		if ! [[ -e "$file" ]]; then
-			echo "rm: cannot remove '$file': No such file or directory"
+			printf "rm: cannot remove '%s': No such file or directory\n" $file
 			return 1
 		fi
 	done
@@ -108,19 +122,19 @@ ask_if_rm_or_trashput() {
 	read -r ans
 	if [[ -n "$ans" && "$ans" == [Nn]* ]]; then
 		if "$force_remove"; then
-			printf "forcefully "
+			printf "\x1b[1mFORCEFULLY REMOVING ALL:\x1b[0m\n"
 			\rm -rfv "${args[@]}"
 		else
 			\rm -rv "${args[@]}"
 		fi
 	else
 		trash-put "${args[@]}"
-		echo "trashed '${args[@]}'"
+		printf "trashed '%s'\n" "${args[*]}" 	
 	fi
 }
 recterm() {
 	if [[ "$#" -lt 2 ]]; then
-		echo "rec_term: missing operand\n   usage: rec_term filename.case filename.gif"
+		printf "rec_term: missing operand\n   usage: rec_term filename.case filename.gif\n"
 		return 1
 	fi
 	asciinema rec "$1"
@@ -139,6 +153,29 @@ updateme() {
 		printf "\e[1;31mAuthentication failed. Aborting update...\n \e[0m"
 	fi
 }
+sl() {
+	local pointer_path="$1"
+	local dest_path="$2"
+	local clr_line="\x1b[F\x1b[K\x1b[F\n"
+	[[ $# -lt 2 ]] && { printf "sl: missing operand\n"; return 1; }
+	! [[ -e "$pointer_path" ]] && printf "sl: \"%s\" doesn't exist.\n" $pointer_path && return 1
+	file_name=$(basename "$pointer_path")
+	dest_path=$(realpath "$dest_path")
+	! [[ -d $dest_path ]] && printf "sl: \"%s\" doesn't exist.\n" $dest_path && return 1
+	symlink_path="$dest_path/$file_name"
+	# Remove redundant slashes in the symlink path for outputting purposes
+	symlink_path=$(tr -s '/' <<< "$symlink_path")
+	# If symlink already exists -- prompt to remove
+	if [[ -e "$symlink_path" ]]; then
+		printf "\e[1m%s exists.\e[0m\n" "$symlink_path"
+		local ans=$(gum choose yes no --cursor="• " --header="Replace it?" --header.foreground="#91e6bb" --height=4)
+		if [[ $ans == "yes" ]]; then \rm "$symlink_path" && printf $clr_line; else printf $clr_line && return 1; fi
+	fi
+	# Get the absolute path of the pointer file
+	local target_path="$(realpath "$pointer_path")"
+	ln -s "$target_path" "$symlink_path"
+	printf "\e[1mSymlinked:\n\e[0m%s\e[1;36m ⇒ \e[0m\e[0;4m%s\e[0m\n" "$symlink_path" "$target_path"
+}
 ex() {
 	if [[ -f "$1" ]]; then
 		case "$1" in
@@ -154,10 +191,10 @@ ex() {
 			*.zip) unzip "$1" ;;
 			*.Z) uncompress "$1" ;;
 			*.7z) 7z x "$1" ;;
-			*) echo "'$1' cannot be extracted via ex()" ;;
+			*) printf "'%s' cannot be extracted via ex()\n" "$1" ;;
 		esac
 	else
-		echo "ex: missing operand"
+		printf "ex: missing operand\n"
 	fi
 }
 list() {
@@ -167,14 +204,15 @@ list() {
 		count=1
 		path=$(pwd)
 		if [[ -n $2 ]]; then path=$2; else path="."; fi
-	elif [[ $1 =~ ^[0-9]+$ ]]; then
+	elif [[ $1 =~  ^[0-9]+$ ]]; then
 		count=$1
 		path=$(pwd)
 	else
-		echo -e "Invalid usage\nlist [level#] [path]"
+		printf "Invalid usage\nlist [level#] [path]\n"
 	fi
 	tree -h -CFL $count --dirsfirst $path 2> /dev/null
 }
+
 ### MPV ###
 make_playlist() { find $1 -type f \( -name "*.mp3" -o -name "*.flac" -o -name "*.wav" -o -name "*.mp4" -o -name "*.avi" -o -name "*.mkv" \) > $2; }
 mpvm() { printf "\033[1;33mPlaying: %s\033[0m\n" "$1" && mpv --no-audio-display --msg-level=all=info --no-resume-playback --term-playing-msg='\e[[1;33mPlaying ${filename}\e[[0m' "$1"; }
@@ -182,23 +220,22 @@ mpvp() { printf "\033[1;33mPlaying: %s\033[0m\n" "$1" && mpv --ao=pulse --no-aud
 
 ### NAVIGATION HELPERS ###
 cdp() { if ! [[ -z $(wl-paste) ]]; then cd $(wl-paste); else return 1; fi }
-repos() { cd ~/Documents/Repos/"$1"; }
 cdls() {
 	if [[ "$1" == "-ls" ]]; then
 		if builtin cd "${@:2}"; then
-			if [[ "$(pwd)" != "$HOME" ]]; then ls && ! grep -F -q "$(pwd)" ~/.cdbmks && pwd >> ~/.cdbmks; fi
+			if [[ "$(pwd)" != $HOME ]]; then ls && ! grep -F -q "$(pwd)" $HOME/.cdbmks && pwd >> $HOME/.cdbmks; fi
 		else
 			return 1
 		fi
 	else
-		local chosenPath=$(\cat ~/.cdbmks | fzf --tac --cycle --preview 'tree -C {}' --preview-window=down)
-		if [[ -n "$chosenPath" ]]; then cd "$chosenPath"; fi
+		local chosen_path=$(\cat $HOME/.cdbmks | fzf --tac --cycle --preview 'tree -C {}' --preview-window=down)
+		if [[ -n "$chosen_path" ]]; then cd "$chosen_path"; fi
 	fi
 	remove_excess_lines
 }
 remove_excess_lines() {
     local file="$HOME/.cdbmks"
-    local numOfLinesInFile=$(wc -l < "$file")
+    local numOfLinesInFile=$(wc --lines < "$file")
     local numOfLinesToRemove=$((numOfLinesInFile - 9))
     if [[ "$numOfLinesToRemove" -gt 0 ]]; then
         tail -n +$numOfLinesToRemove "$file" > "$file.tmp" && \mv "$file.tmp" "$file"
@@ -207,24 +244,24 @@ remove_excess_lines() {
 
 ### GIT ###
 gitcommit() { git add "$(git rev-parse --show-toplevel)" && git commit -m "$(gum input)" -m "$(gum write)"; }
+gitpush() { git add "$(git rev-parse --show-toplevel)" && git commit -a -m "$1" && git push origin main; }
+gpd() { git add "$(git rev-parse --show-toplevel)" && git commit -a -m "small changes" && git push origin main; }
+gitpush_branch() { git add "$(git rev-parse --show-toplevel)" && git commit -a -m "$1" && git push origin "$2"; }
 gb() { git branch | cut -c 3- | gum choose | xargs git checkout; }
 
 ### FZF ###
 cdfi() {
-	selectedPath=$(find . \( -type d -name .stversions -prune \) -o \( -type d -o -type f \) |
+	selected_path=$(find . \( -type d -name .stversions -prune \) -o \( -type d -o -type f \) |
 		fzf --cycle --query "$@" --tac --no-sort --preview 'bat --style=numbers --color=always {}' \
 		--preview-window follow:75%:down:rounded:nowrap: -1 -q "$1")
-    if [[ -n "$selectedPath" ]]; then
-		echo "$selectedPath"
-		directory="$(dirname "$selectedPath")"
-		last_part="$(basename "$selectedPath")"
-		echo "directory = $directory"
-		echo "last_part = $last_part"
-		if [[ -d "$selectedPath" ]]; then cd "$directory/$last_part"; else cd "$directory"; fi
+    if [[ -n "$selected_path" ]]; then
+		directory="$(dirname "$selected_path")"
+		last_part="$(basename "$selected_path")"
+		if [[ -d "$selected_path" ]]; then cd "$directory/$last_part"; else cd "$directory"; fi
     fi
 }
 cdf() {
-	selectedPath=$(find . \( -name .stversions -prune \) -o -print | fzf -q "$1" --cycle --no-sort --preview 'LS_COLORS="$LS_COLORS" ls --color=always {}' --preview-window down:31%)
-	if [[ -n "$selectedPath" ]]; then directory=$(dirname "$selectedPath") && last_part=$(basename "$selectedPath"); fi
-	if [[ -d "$selectedPath" ]]; then cd "$directory/$last_part"; else cd "$directory"; fi
+	selected_path=$(find . \( -name .stversions -prune \) -o -print | fzf -q "$1" --cycle --no-sort --preview 'LS_COLORS="$LS_COLORS" ls --color=always {}' --preview-window down:31%)
+	if [[ -n "$selected_path" ]]; then directory=$(dirname "$selected_path") && last_part=$(basename "$selected_path"); fi
+	if [[ -d "$selected_path" ]]; then cd "$directory/$last_part"; else cd "$directory"; fi
 }
