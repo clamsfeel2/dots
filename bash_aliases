@@ -1,5 +1,3 @@
-shopt -s expand_aliases # Allow non-interactive shells to use aliases
-
 # The following programs and utilities are used throughout this .bash_aliases file.
 # lsd: A modern replacement for ls.
 # bat: A `cat` clone with syntax highlighting.
@@ -18,51 +16,12 @@ shopt -s expand_aliases # Allow non-interactive shells to use aliases
 # gum: "A tool for glamorous shell scripts" - https://github.com/charmbracelet/gum
 # trash-cli: Command line interface to the freedesktop.org trashcan.
 
-### BASIC CMD STUFF ###
-alias l="lsd -l --group-directories-first"
-alias la="lsd -lA --group-directories-first"
-alias lsa="lsd -A --group-directories-first"
-alias ls="lsd --group-directories-first"
-alias lss="ls -l --group-directories-first --total-size"
-alias lass="ls -lA --group-directories-first --total-size"
-alias grep="grep -C 3 -n --color=auto"
-alias mv="mv -iv"
-alias rm="ask_if_rm_or_trashput"
-alias cp="cp -rv"
-alias diff="icdiff --report-identical-files --line-numbers --whole-file"
-alias pwdc="pwd | wl-copy --trim-newline"
-alias wlc="wl-copy"
-alias cat="bat --paging=never --style=plain,header" # Make cat a bat
-alias e="fc -e ${EDITOR}" # Edit previous command in $EDITOR
-alias zathura="zathura 2>/dev/null" # To silence gtk warnings when using zathura
-alias speak="espeak -p60 -g9 -k20 -v mb-us1" # To make computer speak
-alias say="spd-say --wait $@" # To make computer speak, better voice
-alias listaliases="bat $HOME/.bash_aliases" # To list all aliases with bat
-alias ea="vim $HOME/.bash_aliases" # Edit aliases real ez
-alias penv="python -m venv build" # Creates virtual env for python
-alias activate="source build/bin/activate" # Activates virual env
-alias wifiqr="nmcli device wifi show-password" # Show QR code for wifi in terminal
-alias clipclear="cliphist wipe" # Clear clipboard
-alias help="bathelp" # Creates colored output for --help, I have not figured out colored man pages yet
-alias tb="(exec 3<>/dev/tcp/termbin.com/9999; \cat >&3; \cat <&3; exec 3<&-) && printf 'add l.termbin for color'\n" # Pastebin alternative cat into it. put a l.termbin to get the color in the output.
-alias rd="ripdrag" # Use ripdrag easier
-alias td="tmux detach-client" # To detach tmux session
-alias ta="tmux attach-session" # To re-attach a tmux session
-alias rg="rg -C 3 -n" # Ripgrep helper
-alias fzfremove="pacman -Qq | fzf --cycle --reverse --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns" # Run sudo pacman -Qi in fzf to remove packages
+shopt -s expand_aliases
+shopt -s histappend
+shopt -s autocd
+shopt -s dirspell
 
-### TRASH-CLI HELPERS ###
-alias tp="trash-put" # Using trash-put easier
-alias tl="trash-list" # Easier way to show what is in trash
-alias trest="trash-restore" # Restore trashed files easier
-alias te="trash-empty" # Empty trash 
-
-### PACMAN HELPERS ###
-alias updatemirrors="reflector --protocol https --verbose --latest 25 --sort rate --save /etc/pacman.d/mirrorlist && paru -Syyuu" # Update pacman mirrors
-alias cleancache="paccache -r" # Clean pacman cache
-alias cleancacheall="paccache -ruk0" # Clean all pacman cache
-alias cleanorph="sudo pacman -Qdtq | sudo pacman -Rns -" # Clean all orphan packages
-
+# ALIASES #
 ### NAVIGATION HELPERS ###
 alias cd="cdls -ls"
 alias cdh="cdls"
@@ -70,6 +29,60 @@ alias ..="cd .."
 alias ....="cd ../.."
 alias ......="cd ../../.."
 alias ........="cd ../../../.."
+alias ..........="cd ../../../../.."
+
+### FILE HELPERS ###
+alias l="lsd --long --group-directories-first"
+alias la="lsd --long --almost-all --group-directories-first"
+alias lsa="lsd --almost-all --group-directories-first"
+alias ls="lsd --group-directories-first"
+alias lss="lsd --long --group-directories-first --total-size"
+alias lass="lsd --long --almost-all --group-directories-first --total-size"
+alias mv="mv --interactive --verbose"
+alias rm="ask_if_rm_or_trashput"
+alias cp="cp --recursive --verbose"
+alias diff="icdiff --report-identical-files --line-numbers --whole-file"
+alias cat="bat --paging=never --style=plain,header"
+
+### TEXT SEARCHING HELPERS ###
+alias grep="grep --context=3 --line-number --color=auto"
+alias rg="rg -C 3 -n"
+
+### PATH && CLIPBOARD HELPERS ###
+alias pwdc="pwd | wl-copy --trim-newline"
+alias wlc="wl-copy"
+
+### SYSTEM MANAGEMENT HELPERS ###
+alias updatemirrors="reflector --protocol https --verbose --latest 25 --sort rate --save /etc/pacman.d/mirrorlist && paru -Syyuu"
+alias cleancache="paccache --remove"
+alias cleancacheall="paccache -ruk0"
+alias fzfremove="pacman -Qq | fzf --cycle --reverse --multi --preview 'pacman -Qi {1}' | xargs --no-run-if-empty --open-tty sudo pacman -Rns"
+alias rnightlight="pkill wl-gammarelay ; hyprctl dispatch exec wl-gammarelay"
+alias rwaybar="pkill waybar ; hyprctl dispatch exec waybar"
+
+### SYSTEM UTILITY HELPERS ###
+alias listaliases="bat ${HOME}/.bash_aliases"
+alias ba="vim ${HOME}/.bash_aliases"
+alias e="fc -e ${EDITOR}"
+alias zathura="zathura 2>/dev/null"
+alias speak="espeak -p60 -g9 -k20 -v mb-us1"
+alias say="spd-say --wait $@"
+alias rd="ripdrag"
+alias tb="(exec 3<>/dev/tcp/termbin.com/9999; \cat >&3; \cat <&3; exec 3<&-) && printf 'add l.termbin for color'"
+##### TMUX #####
+alias td="tmux detach-client"
+alias ta="tmux attach-session"
+##### NETWORKING #####
+alias wifiqr="nmcli device wifi show-password"
+alias clipclear="cliphist wipe"
+##### TRASH-CLI HELPERS #####
+alias tp="trash-put"
+alias tl="trash-list"
+alias trest="trash-restore"
+alias te="trash-empty"
+##### PYTHON VENV HELPERS #####
+alias penv="python -m venv build"
+alias activate="source build/bin/activate"
 
 ### GRC COLORING HELPERS ###
 alias blkid='grc blkid'
@@ -96,63 +109,10 @@ alias mount='grc mount'
 alias ps='grc ps'
 alias ifconfig='grc ifconfig'
 
-## FUNCTIONS ##
-### MISC ###
+# FUNCTIONS #
+### FILE MANAGEMENT HELPERS ###
 pdflatex() { if command pdflatex "$@"; then if [[ -d log ]]; then \mv *.aux *.log *.out log; else mkdir log && \mv *.aux *.log *.out log; fi; fi }
-empty() { truncate -s 0 "$1" && cat "$1"; }
-bathelp() { set -o pipefail; "$@" --help 2>&1 | bat --plain --language=cmd-help; }
-mux() { if [[ -z "$1" ]]; then tmux; else tmux new-session -s "$1"; fi; }
-r() { executable=$(find . -maxdepth 1 -type f -executable); if [[ -n "$executable" ]]; then $executable "$@"; else printf "Executable not found.\n"; fi; }
-ask_if_rm_or_trashput() {
-	if [[ $# -eq 0 ]]; then printf "rm: missing operand\n" && return 1; fi
-	local force_remove=false
-	local file=""
-	local args=("$@")
-	if [[ "${args[0]}" == "-rf" || "${args[0]}" == "-f" ]]; then
-		force_remove=true
-		args=("${args[@]:1}")  # Remove the first argument (-rf or -f)
-	fi
-	for file in "${args[@]}"; do
-		if ! [[ -e "$file" ]]; then
-			printf "rm: cannot remove '%s': No such file or directory\n" $file
-			return 1
-		fi
-	done
-	printf "\e[1;36mUse trash-put instead?:\e[0m "
-	read -r ans
-	if [[ -n "$ans" && "$ans" == [Nn]* ]]; then
-		if "$force_remove"; then
-			printf "\x1b[1mFORCEFULLY REMOVING ALL:\x1b[0m\n"
-			\rm -rfv "${args[@]}"
-		else
-			\rm -rv "${args[@]}"
-		fi
-	else
-		trash-put "${args[@]}"
-		printf "trashed '%s'\n" "${args[*]}" 	
-	fi
-}
-recterm() {
-	if [[ "$#" -lt 2 ]]; then
-		printf "rec_term: missing operand\n   usage: rec_term filename.case filename.gif\n"
-		return 1
-	fi
-	asciinema rec "$1"
-	agg --theme 353c4a,ffffff,3B4252,BF616A,A3BE8C,EBCB8B,81A1C1,B48EAD,88C0D0,E5E9F0 --font-family "JetBrainsMono Nerd Font, JetBrainsMono NF" --font-size 30 --speed 2 "$1" "$2"
-}
-updateme() {
-	sudo -v
-	if [[ $? -eq 0 ]]; then
-		printf "\e[1;33mParu: \n\e[0m"
-		env -i PATH="$PATH" paru -Syuu
-		printf "\n\e[1;33mPipx: \n\e[0m"
-		pipx upgrade-all
-		printf "\e[1;33mFlatpak: \n\e[0m"
-		flatpak update
-	else
-		printf "\e[1;31mAuthentication failed. Aborting update...\n \e[0m"
-	fi
-}
+empty() { truncate --size 0 "$1" && cat "$1"; }
 sl() {
 	local pointer_path="$1"
 	local dest_path="$2"
@@ -161,10 +121,13 @@ sl() {
 	! [[ -e "$pointer_path" ]] && printf "sl: \"%s\" doesn't exist.\n" $pointer_path && return 1
 	file_name=$(basename "$pointer_path")
 	dest_path=$(realpath "$dest_path")
-	! [[ -d $dest_path ]] && printf "sl: \"%s\" doesn't exist.\n" $dest_path && return 1
-	symlink_path="$dest_path/$file_name"
+	if [[ -d $(basename $dest_path) ]]; then 
+		symlink_path="$dest_path/$file_name"
+	else 
+		symlink_path="$dest_path"
+	fi
 	# Remove redundant slashes in the symlink path for outputting purposes
-	symlink_path=$(tr -s '/' <<< "$symlink_path")
+	symlink_path=$(tr --squeeze-repeats '/' <<< "$symlink_path")
 	# If symlink already exists -- prompt to remove
 	if [[ -e "$symlink_path" ]]; then
 		printf "\e[1m%s exists.\e[0m\n" "$symlink_path"
@@ -173,7 +136,7 @@ sl() {
 	fi
 	# Get the absolute path of the pointer file
 	local target_path="$(realpath "$pointer_path")"
-	ln -s "$target_path" "$symlink_path"
+	ln --symbolic "$target_path" "$symlink_path"
 	printf "\e[1mSymlinked:\n\e[0m%s\e[1;36m ⇒ \e[0m\e[0;4m%s\e[0m\n" "$symlink_path" "$target_path"
 }
 ex() {
@@ -197,6 +160,97 @@ ex() {
 		printf "ex: missing operand\n"
 	fi
 }
+
+### SYSTEM MANAGEMENT HELPERS ###
+cleanorph() { 
+	local orphans=$(sudo pacman -Qdtq) 
+	if [[ -n $orphans ]]; then 
+		sudo pacman -Rns $orphans
+	else
+		printf "\x1b[1;31mNo orphaned packages to remove\x1b[0m\n"
+	fi
+}
+ask_if_rm_or_trashput() {
+	if [[ $# -eq 0 ]]; then printf "rm: missing operand\n" && return 1; fi
+	local force_remove=false
+	local file=""
+	local args=("$@")
+	if [[ "${args[0]}" == "-rf" || "${args[0]}" == "-f" ]]; then
+		force_remove=true
+		args=("${args[@]:1}")  # Remove the first argument (-rf or -f)
+	fi
+	for file in "${args[@]}"; do
+		if ! [[ -e "$file" ]]; then
+			printf "rm: cannot remove '%s': No such file or directory\n" $file
+			return 1
+		fi
+	done
+	printf "\e[1;36mUse trash-put instead?:\e[0m "
+	read -r ans
+	if [[ -n "$ans" && "$ans" == [Nn]* ]]; then
+		if "$force_remove"; then
+			printf "\x1b[1mFORCEFULLY REMOVING ALL:\x1b[0m\n"
+			\rm --recursive --force --verbose "${args[@]}"
+		else
+			\rm --recursive --verbose "${args[@]}"
+		fi
+	else
+		trash-put "${args[@]}"
+		# "${array[*]}" expands the array elements as a single word
+		# with each element separated by the first character of the 
+		# IFS (Internal Field Separator) variable 
+		  # -- default is (space, tab, newline)
+		printf "trashed '%s'\n" "${args[*]}" 	
+	fi
+}
+updateme() {
+	sudo -v
+	if [[ $? -eq 0 ]]; then
+		printf "\e[1;33mParu: \n\e[0m"
+		env --ignore-environment PATH="$PATH" paru -Syuu
+		printf "\n\e[1;33mPipx: \n\e[0m"
+		pipx upgrade-all
+		printf "\e[1;33mFlatpak: \n\e[0m"
+		flatpak update
+	else
+		printf "\e[1;31mAuthentication failed. Aborting update...\n \e[0m"
+	fi
+}
+
+### SYSTEM UTILIIY HELPERS
+h() { set -o pipefail; "$@" --help 2>&1 | bat --plain --language=cmd-help; }
+r() { executable=$(find . -maxdepth 1 -type f -executable); if [[ -n "$executable" ]]; then $executable "$@"; else printf "Executable not found.\n"; fi; }
+mfix() { mullvad disconnect && mullvad connect && printf "\e[32mok:)\e[0m\n"; }
+mux() { if [[ -z "$1" ]]; then tmux; else tmux new-session -s "$1"; fi; }
+
+### MPV HELPERS ###
+make_playlist() { find $1 -type f \( -name "*.mp3" -or -name "*.flac" -or -name "*.wav" -or -name "*.mp4" -or -name "*.avi" -or -name "*.mkv" \) > $2; }
+mpvm() { printf "\033[1;33mPlaying: %s\033[0m\n" "$1" && mpv --no-audio-display --msg-level=all=info --no-resume-playback --term-playing-msg='\e[[1;33mPlaying ${filename}\e[[0m' "$1"; }
+mpvp() { printf "\033[1;33mPlaying: %s\033[0m\n" "$1" && mpv --ao=pulse --no-audio-display --msg-level=all=info --term-playing-msg='\e[[1;33mPlaying ${filename}\e[[0m' --playlist="$1"; }
+
+### NAVIGATION HELPERS ###
+cdp() { if ! [[ -z $(wl-paste) ]]; then cd $(wl-paste); else return 1; fi }
+cdls() {
+	if [[ "$1" == "-ls" ]]; then
+		if builtin cd "${@:2}"; then
+			if [[ "$(pwd)" != ${HOME} ]]; then ls && ! grep -F -q "$(pwd)" ${HOME}/.cdbmks && pwd >> ${HOME}/.cdbmks; fi
+		else
+			return 1
+		fi
+	else
+		local chosen_path=$(\cat ${HOME}/.cdbmks | fzf --tac --cycle --preview 'tree -C {}' --preview-window=down)
+		if [[ -n "$chosen_path" ]]; then cd "$chosen_path"; fi
+	fi
+	remove_excess_lines
+}
+remove_excess_lines() {
+    local file="${HOME}/.cdbmks"
+    local num_of_lines_in_file=$(wc --lines < "$file")
+    local num_of_lines_to_remove=$((num_of_lines_in_file - 9))
+    if [[ "$num_of_lines_to_remove" -gt 0 ]]; then
+        tail -n +$num_of_lines_to_remove "$file" > "$file.tmp" && \mv "$file.tmp" "$file"
+	fi
+}
 list() {
 	if [[ $1 =~ ^[0-9]+$ ]] && [[ -z $2 ]]; then
 		count=$1 && path=$2
@@ -213,41 +267,12 @@ list() {
 	tree -h -CFL $count --dirsfirst $path 2> /dev/null
 }
 
-### MPV ###
-make_playlist() { find $1 -type f \( -name "*.mp3" -o -name "*.flac" -o -name "*.wav" -o -name "*.mp4" -o -name "*.avi" -o -name "*.mkv" \) > $2; }
-mpvm() { printf "\033[1;33mPlaying: %s\033[0m\n" "$1" && mpv --no-audio-display --msg-level=all=info --no-resume-playback --term-playing-msg='\e[[1;33mPlaying ${filename}\e[[0m' "$1"; }
-mpvp() { printf "\033[1;33mPlaying: %s\033[0m\n" "$1" && mpv --ao=pulse --no-audio-display --msg-level=all=info --term-playing-msg='\e[[1;33mPlaying ${filename}\e[[0m' --playlist="$1"; }
-
-### NAVIGATION HELPERS ###
-cdp() { if ! [[ -z $(wl-paste) ]]; then cd $(wl-paste); else return 1; fi }
-cdls() {
-	if [[ "$1" == "-ls" ]]; then
-		if builtin cd "${@:2}"; then
-			if [[ "$(pwd)" != $HOME ]]; then ls && ! grep -F -q "$(pwd)" $HOME/.cdbmks && pwd >> $HOME/.cdbmks; fi
-		else
-			return 1
-		fi
-	else
-		local chosen_path=$(\cat $HOME/.cdbmks | fzf --tac --cycle --preview 'tree -C {}' --preview-window=down)
-		if [[ -n "$chosen_path" ]]; then cd "$chosen_path"; fi
-	fi
-	remove_excess_lines
-}
-remove_excess_lines() {
-    local file="$HOME/.cdbmks"
-    local numOfLinesInFile=$(wc --lines < "$file")
-    local numOfLinesToRemove=$((numOfLinesInFile - 9))
-    if [[ "$numOfLinesToRemove" -gt 0 ]]; then
-        tail -n +$numOfLinesToRemove "$file" > "$file.tmp" && \mv "$file.tmp" "$file"
-	fi
-}
-
-### GIT ###
-gitcommit() { git add "$(git rev-parse --show-toplevel)" && git commit -m "$(gum input)" -m "$(gum write)"; }
-gitpush() { git add "$(git rev-parse --show-toplevel)" && git commit -a -m "$1" && git push origin main; }
-gpd() { git add "$(git rev-parse --show-toplevel)" && git commit -a -m "small changes" && git push origin main; }
-gitpush_branch() { git add "$(git rev-parse --show-toplevel)" && git commit -a -m "$1" && git push origin "$2"; }
-gb() { git branch | cut -c 3- | gum choose | xargs git checkout; }
+### GIT HELPERS ###
+gitcommit() { git add "$(git rev-parse --show-toplevel)" && git commit --message "$(gum input)" -m "$(gum write)"; }
+gitpush() { git add "$(git rev-parse --show-toplevel)" && git commit --all --message "$1" && git push origin main; }
+gpd() { git add "$(git rev-parse --show-toplevel)" && git commit --all --message "small changes" && git push origin main; }
+gitpush_branch() { git add "$(git rev-parse --show-toplevel)" && git commit --all --messge "$1" && git push origin "$2"; }
+gb() { git branch | cut --characters 3- | gum choose | xargs git checkout; }
 
 ### FZF ###
 cdfi() {
@@ -264,4 +289,14 @@ cdf() {
 	selected_path=$(find . \( -name .stversions -prune \) -o -print | fzf -q "$1" --cycle --no-sort --preview 'LS_COLORS="$LS_COLORS" ls --color=always {}' --preview-window down:31%)
 	if [[ -n "$selected_path" ]]; then directory=$(dirname "$selected_path") && last_part=$(basename "$selected_path"); fi
 	if [[ -d "$selected_path" ]]; then cd "$directory/$last_part"; else cd "$directory"; fi
+}
+
+### SCREEN CAPTURE HELPERS ###
+recterm() {
+	if [[ "$#" -lt 2 ]]; then
+		printf "rec_term: missing operand\n   usage: rec_term filename.case filename.gif\n"
+		return 1
+	fi
+	asciinema rec "$1"
+	agg --theme 353c4a,ffffff,3B4252,BF616A,A3BE8C,EBCB8B,81A1C1,B48EAD,88C0D0,E5E9F0 --font-family "JetBrainsMono Nerd Font, JetBrainsMono NF" --font-size 30 --speed 2 "$1" "$2"
 }
