@@ -11,9 +11,8 @@ Plugin 'tpope/vim-eunuch'
 Plugin 'ludovicchabant/vim-gutentags'
 Plugin 'elkowar/yuck.vim'
 Plugin 'preservim/nerdtree'
-" Plugin 'dense-analysis/ale'
-Plugin 'rust-lang/rust.vim'
-" Plugin 'vimwiki/vimwiki'
+Plugin 'dart-lang/dart-vim-plugin'
+Plugin 'thosakwe/vim-flutter'
 call vundle#end()
 filetype plugin indent on
 filetype plugin on
@@ -34,6 +33,7 @@ set smoothscroll
 set display+=lastline
 set showmatch
 set matchpairs+=(:),{:},[:],<:>
+
 " Should not allow scatch preview to open... ever
 set completeopt-=preview
 let g:vimtex_view_method = 'zathura'
@@ -41,13 +41,26 @@ let g:vimtex_view_method = 'zathura'
 let mapleader="\<Space>"
 " set background=dark
 set background=
-" Makes it so vim uses terminal background -- just makes the syntax coloring the same in and out of tmux
-" set background=
 " Overrides text width from /usr/share/vim/vim91/ftplugin/vim.vim line 71 to 0 so comments can be as long as I want
 augroup myOverrides
     autocmd!
     autocmd FileType vim set textwidth=0
 augroup END
+
+" FLUTTER
+let g:flutter_show_log_on_run = "tab"
+let g:flutter_autoscroll = 0
+augroup dart_mapping
+    autocmd!
+    autocmd FileType dart nnoremap <buffer> <F5> :FlutterRun<CR>
+augroup END
+
+" Dart-vim-plugin configuration
+let g:dart_auto_popup_quickfix = 1 " Automatically open quickfix window
+let g:dart_html_in_string = v:true
+let g:dart_style_guide = 4
+let g:dart_trailing_comma_indent = v:true
+let g:dart_corelib_highlight = v:true
 
 " CPP-SETTINGS:
 " Lint .h files as C++, not C
@@ -64,10 +77,6 @@ let g:ale_cpp_cc_options    = cpp_opts
 let g:ale_cpp_gcc_options   = cpp_opts
 let g:ale_cpp_clang_options = cpp_opts
 
-
-
-
-
 " Hacky way kinda to compile and run code with F5 if leader key is appended then it compiles only the file that is open
 autocmd FileType cpp nnoremap t<F5> :!g++ -std=c++20 -Wall -Wextra -Wfloat-equal -Wundef -Wcast-align -Wwrite-strings -Wlogical-op -Wmissing-declarations -Wredundant-decls -Wshadow -Woverloaded-virtual *.cpp && timr ./a.out && rm a.out $2>/dev/null<CR>
 autocmd FileType cpp nnoremap <F5> :!g++ -std=c++20 -Wall *.cpp && ./a.out && rm a.out $2>/dev/null<CR>
@@ -76,7 +85,6 @@ autocmd FileType cpp nnoremap <leader>t<F5> :!g++ -std=c++20 -Wall -Wextra -Wflo
 autocmd FileType cpp nnoremap <leader>c<F5> :!g++ -std=c++20 -Wall -Wextra -Wfloat-equal -Wundef -Wcast-align -Wwrite-strings -Wlogical-op -Wmissing-declarations -Wredundant-decls -Wshadow -Woverloaded-virtual % && ./a.out \| wl-copy && rm a.out $2>/dev/null<CR>
 
 autocmd FileType cpp nnoremap JSON :!g++ -std=c++20 -ljsoncpp -Wall -Wextra -Wfloat-equal -Wundef -Wcast-align -Wwrite-strings -Wlogical-op -Wmissing-declarations -Wredundant-decls -Wshadow -Woverloaded-virtual % && ./a.out && rm a.out $2>/dev/null<CR>
-
 
 " For C
 autocmd FileType c nnoremap <leader><F5> :!gcc -std=c++20 -Wall -Wextra -Wfloat-equal -Wundef -Wcast-align -Wwrite-strings -Wlogical-op -Wmissing-declarations -Wredundant-decls -Wshadow % && ./a.out && rm a.out $2>/dev/null<CR>
@@ -107,17 +115,6 @@ nnoremap gb :buffers<CR>:buffer<Space>
 nnoremap <leader>bn   :bprevious<CR>
 nnoremap <leader>bp :bnext<CR>
 
-" VIM TAGS "
-           " Use ctrl+] to go to tag under cursor
-           " Use g+ctrl+] to see which other files in code base use tag
-           " Use ctrl+t to just back up the tag stack
-  " This creates command MakeTags to create file when NOT in $HOME
-  " Update tags file on every save, when NOT in $HOME
-      "autocmd BufWritePost *.c,*.cpp,*.h,*.hpp,*.py,*.php,*.js silent! MakeTags
-"  command! MakeTags if getcwd() !=# expand('$HOME') | execute '!ctags -R --extras=f -f .vimtags .' | endif
-  " autocmd BufWritePost *.c,*.cpp,*.h,*.hpp,*.py,*.php,*.js execute 'silent MakeTags' 
-  " set tags=.vimtags;~
-
 command SVR source $MYVIMRC
 
 " TABS "
@@ -135,14 +132,11 @@ nnoremap <leader>7 7gt
 nnoremap <leader>8 8gt
 nnoremap <leader>9 9gt
 
-" To delete entire doucment with 'da'
-"nnoremap dae ggdG :r !wl-paste -n<CR>
+" To delete entire doucment and paste what's in clipboard
 nnoremap dae :%!wl-paste -n<CR>
 
 "" STATUS LINE AND TABS AND FOLDS COLORING
 " Opening help in new tab every time
-" cabbrev help tab help
-
 set splitright
 set fillchars=vert:│,fold:┈,diff:┈ 
 "set laststatus=1
@@ -181,10 +175,6 @@ hi clear SpellCap
 hi SpellCap cterm=underline ctermul=0 ctermfg=blue
 " hi SpellCap cterm=NONE  
 autocmd BufNewFile,BufRead *.txt,*.md,*.tex setlocal spell
-"autocmd FileType help setlocal nospell " THIS DOES NOT WORK FOR SOME REASON BUT IT SHOULD SO I USE THIS MESS UNDERNEATH 
-" set spelllang=nl,en_gb
-" To use Ctrl+ to quickly fix spelling mistakes
-" inoremap <C-;> <c-g>u<Esc>[s1z=`]a<c-g>u 
 nnoremap sc [sz=
 " Function to set nospell when entering a help buffer
 function! SetNoSpell()
@@ -211,8 +201,6 @@ autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTr
 " Close the tab if NERDTree is the only window remaining in it.
 autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | call feedkeys(":quit\<CR>:\<BS>") | endif
 " Start NERDTree. If a file is specified, move the cursor to its window.
-" autocmd StdinReadPre * let s:std_in=1
-" autocmd VimEnter * NERDTree | if argc() > 0 || exists("s:std_in") | wincmd p | endif
 nnoremap <leader>n :NERDTreeFocus<CR>
 nnoremap <C-n> :NERDTree<CR>
 nnoremap <C-t> :NERDTreeToggle<CR>
@@ -296,7 +284,9 @@ let g:gutentags_ctags_exclude = [
 " Uncommnet to turn inlay hints on
 " let g:ycm_enable_inlay_hints = 1
 " needed for c++17
-let g:ycm_global_ycm_extra_conf = '~/.vim/bundle/YouCompleteMe/ycm_extra_conf.py'
+" Add syntax highlighting rules for .bash_functions files
+au BufNewFile,BufRead .bash_functions set filetype=sh
+let g:ycm_global_ycm_extra_conf = '/home/user/.vim/bundle/YouCompleteMe/ycm_extra_conf.py'
 let g:ycm_always_populate_location_list = 1
 " Changes color for YCM popup window 15 white 3 yellow
 highlight Pmenu ctermfg=225 cterm=bold ctermbg=NONE guifg=#ffffff guibg=NONE
