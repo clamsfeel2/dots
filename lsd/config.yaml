@@ -16,6 +16,7 @@ blocks:
   - size
   - date
   - name
+  - git
 
 # == Color ==
 # This has various color options. (Will be expanded in the future.)
@@ -36,7 +37,9 @@ color:
 # When "classic" is set, this is set to "date".
 # Possible values: date, relative, '+<date_format>'
 # `date_format` will be a `strftime` formatted value. e.g. `date: '+%d %b %y %X'` will give you a date like this: 17 Jun 21 20:14:55
-date: date
+# date: '+%Y-%m-%d %H:%M:%S' # iso 8601
+date: '+%b %d %Y %H:%M:%S'
+
 
 # == Dereference ==
 # Whether to dereference symbolic links.
@@ -107,7 +110,7 @@ sorting:
   # Whether to group directories together and where.
   # When "classic" is set, this is set to "none".
   # Possible values: first, last, none
-  dir-grouping: none
+  dir-grouping: first
 
 # == No Symlink ==
 # Whether to omit showing symlink targets
@@ -126,7 +129,7 @@ hyperlink: never
 
 # == Symlink arrow ==
 # Specifies how the symlink arrow display, chars in both ascii and utf8
-symlink-arrow: ⇒
+symlink-arrow: →
 
 # == Header ==
 # Whether to display block headers.

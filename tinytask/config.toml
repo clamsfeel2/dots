@@ -1,0 +1,6 @@
+[configuration]
+display_help_by_default = false
+path = "foo/bar/.tinytask/todo.json"
+default_view = "all"
+date_format = "%b %d, %a %H:%M:%S"
+# default_sort_order = "alphabetical" # INVALID AS OF 12/30/2023 -- FIX SOON

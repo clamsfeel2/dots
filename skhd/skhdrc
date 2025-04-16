@@ -1,0 +1,200 @@
+# Built-In Modifier and Literal Keywords: https://github.com/koekeishiya/skhd/issues/1
+# Hotkeys: https://github.com/koekeishiya/skhd?tab=readme-ov-file#configuration
+
+### BASIC KEYBINDS ###
+j [
+	"Preview" : skhd -k "down"
+	* ~
+]
+k [
+	"Preview" : skhd -k "up"
+	* ~
+]
+g [
+	"Preview" : skhd -k "cmd - up"
+	* ~
+]
+shift - g [
+	"Preview" : skhd -k "cmd - down"
+	* ~
+]
+q [
+	"Preview" : skhd -k "cmd - w"
+	"Find My" : skhd -k "cmd - w"
+	* ~
+]
+ctrl - c [
+	"kitty" ~
+	* : skhd -k "cmd - c"
+]
+ctrl - b [
+	"kitty" ~
+	* : skhd -k "cmd - b"
+]
+ctrl - z [
+	"kitty" ~
+	"firefox" ~
+	* : skhd -k "cmd - z"
+]
+ctrl - t [
+	"kitty" ~
+	* : skhd -k "cmd - t"
+]
+ctrl - w [
+	"kitty" ~
+	* : skhd -k "cmd - w"
+]
+ctrl - p [
+	"kitty" ~
+	* : skhd -k "cmd - p"
+]
+ctrl - a [
+	"kitty" ~
+	* : skhd -k "cmd - a"
+]
+ctrl - l [
+	"kitty" ~
+	* : skhd -k "cmd - l"
+]
+ctrl - i [
+	"kitty" ~
+	* : skhd -k "cmd - i"
+]
+ctrl - u [
+	"kitty" ~
+	* : skhd -k "cmd - u"
+]
+ctrl - f [
+	"kitty" ~
+	* : skhd -k "cmd - f"
+]
+ctrl - s [
+	"kitty" ~
+	* : skhd -k "cmd - s"
+]
+ctrl - r [
+	"kitty" ~
+	* : skhd -k "cmd - r"
+]
+ctrl - backspace [
+	"kitty" ~
+	* : skhd -k "alt - backspace"
+]
+cmd - q [
+	"firefox" : skhd -k "shift + cmd - w"
+	"kitty" : skhd -k "shift + cmd - w"
+	"Finder" : skhd -k "cmd - w"
+	* ~
+]
+
+# Opening Kitty
+cmd - return : kitty --single-instance -d ~
+
+ctrl - v : skhd -k "cmd - v"
+shift + ctrl - t : skhd -k "cmd + shift - t"
+shift + ctrl - p : skhd -k "cmd + shift - p"
+shift + ctrl - backspace : skhd -k "delete"
+ctrl - 0x18 : skhd -k "cmd - 0x18" # 0x18 is =
+ctrl - 0x1B : skhd -k "cmd - 0x1B" # 0x1B is -
+
+# Using FN + Vim Keys As Arrow Keys
+alt - h : skhd -k "left"
+alt - j : skhd -k "down"
+alt - k : skhd -k "up"
+alt - l : skhd -k "right"
+
+### WINDOW MOVEMENT ###
+# Fill Window
+alt + ctrl - f : yabai -m window --grid 1:1:0:0:1:1
+# Reading Window
+alt + shift - r : yabai -m window --toggle float --grid 8:8:1:0:5:8
+
+# Focus Window
+fn - h : yabai -m window --focus west
+fn - l : yabai -m window --focus east
+fn - k : yabai -m window --focus north
+fn - j : yabai -m window --focus south
+
+# Cycle All Windows On Space Backwards By Coordinate
+alt - 0x29 : yabai -m window --focus "$(yabai -m query --windows --space | jq -re "[sort_by(.id, .frame) | reverse | .[] | select(.role == \"AXWindow\" and .subrole == \"AXStandardWindow\") | .id] | nth(index($(yabai -m query --windows --window | jq -re ".id")) - 1)")"
+
+# Balance Windows
+shift + cmd - 0 : yabai -m space --balance
+
+# Switch to Space/Create Space If Not Present
+ctrl - 1 : ~/.config/skhd/scripts/create_focus.sh 1
+ctrl - 2 : ~/.config/skhd/scripts/create_focus.sh 2
+ctrl - 3 : ~/.config/skhd/scripts/create_focus.sh 3
+ctrl - 4 : ~/.config/skhd/scripts/create_focus.sh 4
+ctrl - 5 : ~/.config/skhd/scripts/create_focus.sh 5
+ctrl - 6 : ~/.config/skhd/scripts/create_focus.sh 6
+ctrl - 7 : ~/.config/skhd/scripts/create_focus.sh 7
+ctrl - 8 : ~/.config/skhd/scripts/create_focus.sh 8
+ctrl - 9 : ~/.config/skhd/scripts/create_focus.sh 9
+
+# Send Window to Space and Follow Focus And Create Space If Not Present
+shift + ctrl - 1 : ~/.config/skhd/scripts/create_send.sh 1
+shift + ctrl - 2 : ~/.config/skhd/scripts/create_send.sh 2
+shift + ctrl - 3 : ~/.config/skhd/scripts/create_send.sh 3
+shift + ctrl - 4 : ~/.config/skhd/scripts/create_send.sh 4
+shift + ctrl - 5 : ~/.config/skhd/scripts/create_send.sh 5
+shift + ctrl - 6 : ~/.config/skhd/scripts/create_send.sh 6
+shift + ctrl - 7 : ~/.config/skhd/scripts/create_send.sh 7
+shift + ctrl - 8 : ~/.config/skhd/scripts/create_send.sh 8
+shift + ctrl - 9 : ~/.config/skhd/scripts/create_send.sh 9
+
+# Send Window To Monitor And Follow Focus
+shift + ctrl + alt - k  : yabai -m window --display next; yabai -m display --focus next
+shift + ctrl + alt - j  : yabai -m window --display 1; yabai -m display --focus 1
+
+# Increase Window Size
+shift + cmd - h : yabai -m window --resize left:-25:0
+shift + cmd - j : yabai -m window --resize top:0:+25
+shift + cmd - k : yabai -m window --resize top:0:-25
+shift + cmd - l : yabai -m window --resize left:+25:0
+
+# Move Floating Window
+shift + ctrl + cmd - h : yabai -m window --move rel:-25:0
+shift + ctrl + cmd - j : yabai -m window --move rel:0:+25
+shift + ctrl + cmd - k : yabai -m window --move rel:0:-25
+shift + ctrl + cmd - l : yabai -m window --move rel:+25:0
+
+# Toggle Window Zoom
+alt + shift - m : yabai -m window --toggle zoom-fullscreen
+
+# Swap Managed Window
+shift + alt - h : yabai -m window --swap west
+shift + alt - j : yabai -m window --swap south
+shift + alt - k : yabai -m window --swap north
+shift + alt - l : yabai -m window --swap east
+
+# Toggle Window Split Type
+shift + alt - e : yabai -m window --toggle split
+
+# Delete Focused Space
+alt - d : yabai -m space --destroy
+
+# Float / Unfloat Window and Center On Screen
+shift + alt - c : yabai -m window --toggle float --grid 6:6:1:1:4:4
+alt - f: yabai -m window --toggle float
+
+# Toggle Sticky+Float, Picture-in-Picture Typa Beat
+alt + shift - p : yabai -m window --toggle sticky && yabai -m window --toggle border && yabai -m window --grid 4:4:3:0:3:2
+
+# Rotate Tree
+alt - r : yabai -m space --rotate 90
+
+# Mirror Tree Y-Axis
+alt - y : yabai -m space --mirror y-axis
+
+# Scratchpads
+alt - e : yabai -m window --toggle sp_mail || open -a Mail
+alt - m : yabai -m window --toggle sp_messages || open -a Messages
+alt - s : yabai -m window --toggle sp_music || open -a Spotify
+alt - a : yabai -m window --toggle sp_calendar || open -a Calendar
+alt - b : yabai -m window --toggle sp_books || open -a Books
+alt - k : yabai -m window --toggle sp_kitty || open --new -a kitty
+
+# Minimizing Windows
+cmd - h : ~/.config/skhd/scripts/minimize_window.sh
+cmd - m : ~/.config/skhd/scripts/minimize_window.sh

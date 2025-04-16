@@ -1,0 +1,107 @@
+# Default model (gpt-3.5-turbo, gpt-4, ggml-gpt4all-j...).
+default-model: gpt-4o
+# Text to append when using the -f flag.
+format-text:
+  markdown: 'Format the response as markdown without enclosing backticks.'
+  json: 'Format the response as json without enclosing backticks.'
+roles:
+  "default": []
+  githelper_long:
+  - Think and act like a software engineer.
+  - Base commit messages on Git diffs and status output.
+  - Begin with a short, imperative summary (≤64 characters), e.g., "Add feature" instead of "Added feature".
+  - Start with one commit type from: feat, fix, docs, style, refactor, test, chore, perf, security, merge, revert, build, ci, config, deploy, init, move, rename, remove, update, add. For example, "fix: removed malicious code from `script.sh`".
+  - After the summary, leave a blank line and detail the changes, including reasons, impact, and any dependencies.
+  - Keep each line of the detailed description within 70 characters.
+  - Interpret Git symbols (e.g., `??` for untracked, `M` for modified, `D` for deleted) accurately.
+  - Enclose all filenames, directories, functions, etc. in backticks.
+  - Never start or end a message with triple backticks (```).
+  - If multiple files or functions are modified, clearly explain each change.
+  - Use full paths relative to the repository root when referring to file paths.
+  - Optionally, add a changelog (prefixed with a commit type) and a Bug Fixes section.
+  - End with a TL;DR summary capturing the commit's essence.
+  - Follow these guidelines strictly to maintain clarity and consistency.
+githelper:
+  - Write commit messages based on Git diffs and status output.
+  - Use a single line (≤64 characters) in the imperative mood, e.g., "Fix bug" not "Fixed bug".
+  - Be clear and concise, accurately reflecting the changes.
+  - Interpret Git symbols (e.g., `??` for untracked, `M` for modified) and describe their impact.
+  - Always enclose filenames, directories, functions, and scripts in backticks.
+  - Start with one commit type from: feat, fix, docs, style, refactor, test, chore, perf, security, merge, revert, build, ci, config, deploy, init, move, rename, remove, update, add, following Conventional Commit standards. For example, "fix(shopping-cart): prevent ordering from an empty cart".
+
+# Ask for the response to be formatted as markdown unless otherwise set.
+format: false
+# System role to use.
+role: "default"
+# Render output as raw text when connected to a TTY.
+raw: false
+# Quiet mode (hide the spinner while loading and stderr messages for success).
+quiet: false
+# Temperature (randomness) of results, from 0.0 to 2.0.
+temp: 1.0
+# TopP, an alternative to temperature that narrows response, from 0.0 to 1.0.
+topp: 1.0
+# Turn off the client-side limit on the size of the input into the model.
+no-limit: true
+# Wrap formatted output at specific width (default is 80)
+word-wrap: 80
+# Include the prompt from the arguments in the response.
+include-prompt-args: false
+# Include the prompt from the arguments and stdin, truncate stdin to specified number of lines.
+include-prompt: 0
+# Maximum number of times to retry API calls.
+max-retries: 5
+# Your desired level of fanciness.
+fanciness: 10
+# Text to show while generating.
+status-text: thinking...
+# Theme to use in the forms. Valid units are: 'charm', 'catppuccin', 'dracula', and 'base16'
+theme: charm
+# Default character limit on input to model.
+# max-input-chars: 32768
+max-input-chars: 12250
+# Maximum number of tokens in response.
+# max-tokens: 100
+# Aliases and endpoints for OpenAI compatible REST API.
+apis:
+  openai:
+    base-url: https://api.openai.com/v1
+    api-key:
+    api-key-env: OPEN_API_KEY
+    models: # https://platform.openai.com/docs/models
+      gpt-4o-mini:
+        aliases: ["4o-mini"]
+        max-input-chars: 392000
+        fallback: gpt-4o
+      gpt-4o:
+        aliases: ["4o"]
+        max-input-chars: 392000
+        fallback: gpt-4
+      gpt-4:
+        aliases: ["4"]
+        max-input-chars: 24500
+        fallback: gpt-3.5-turbo
+      gpt-4-1106-preview:
+        aliases: ["128k"]
+        max-input-chars: 392000
+        fallback: gpt-4
+      gpt-4-32k:
+        aliases: ["32k"]
+        max-input-chars: 98000
+        fallback: gpt-4
+      gpt-3.5-turbo:
+        aliases: ["35t"]
+        max-input-chars: 12250
+        fallback: gpt-3.5
+      gpt-3.5-turbo-1106:
+        aliases: ["35t-1106"]
+        max-input-chars: 12250
+        fallback: gpt-3.5-turbo
+      gpt-3.5-turbo-16k:
+        aliases: ["35t16k"]
+        max-input-chars: 44500
+        fallback: gpt-3.5
+      gpt-3.5:
+        aliases: ["35"]
+        max-input-chars: 12250
+        fallback:

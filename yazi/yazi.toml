@@ -1,0 +1,46 @@
+[manager]
+ratio = [2, 4, 5]
+sort_by = "alphabetical"
+sort_sensitive = false
+sort_dir_first = true
+line_mode = "size"
+show_symlink = false
+mouse_events = ["click", "scroll", "move"]
+
+[opener]
+edit = [
+	{ run = 'vim "$@"', block = true },
+]
+play = [
+	{ run = 'mpv "$@"', orphan = true },
+]
+open = [
+	{ run = 'xdg-open "$@"', orphan = true },
+]
+view_img = [
+	{ run = 'mpv --msg-level=all=no --no-osc --no-load-scripts --directory-mode=ignore "$@"', orphan = true, desc = "imv" },
+]
+view_pdf = [
+	{ run = 'zathura --fork "$@"', orphan = true, desc = "zathura" },
+]
+libreoffice = [
+	{ run = 'gum spin --title "loading libreoffice..." -- libreoffice "$@"', block = true, orphan = true, desc = "libreoffice"},
+]
+listen = [
+	{ run = '$HOME/.config/yazi/scripts/mpv_music_helper.sh "$@"', block = true },
+]
+
+[open]
+rules = [
+	{ mime = "text/*", use = "edit" },
+	{ mime = "video/*", use = "play" },
+	{ mime = "image/*", use = "view_img" },
+	{ mime = "audio/*", use = "listen" },
+	{ mime = "*/json", use = "edit" },
+    { mime = "*/xml", use = "edit" },
+    { name = "*.html", use = [ "open", "edit" ] },
+    { mime = "*/pdf", use = "view_pdf" },
+    { mime = "*/vnd.ms-excel", use = "libreoffice" },
+    { mime = "*/vnd.ms-powerpoint", use = "libreoffice" },
+    { mime = "*/vnd.openxmlformats-officedocument.wordprocessingml.document", use = "libreoffice" },
+]

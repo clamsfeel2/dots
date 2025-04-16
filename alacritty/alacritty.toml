@@ -25,9 +25,6 @@ style = { shape = "Beam", blinking = "Always" }
 vi_mode_style = { shape = "Beam", blinking = "Always" }
 blink_timeout = 0
 unfocused_hollow = true
-# cursor = "#6F7378"
-# custom_cursor_colors = true
-# text = "#E5E9F0"
 
 [font]
 size = 11.0

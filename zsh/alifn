@@ -1,0 +1,635 @@
+# SHELL OPTIONS #
+if [[ -n "$BASH_VERSION" ]]; then
+	shopt -s expand_aliases          # Enable alias expansion inside scripts.
+elif [[ -n "$ZSH_VERSION" ]]; then
+	setopt aliases				     # Enable aliases in non-interactive shells.
+	setopt auto_cd				     # Allow changing directories without using cd.
+	setopt interactive_comments	     # Allow comments in interactive mode.
+	setopt glob_dots				 # Include dotfiles in filename expansion.
+	setopt extended_glob			 # Enable advanced pattern matching in globbing.
+	setopt rmstarsilent				 # Suppress confirmation when using rm * or rm /dir/*.
+	# FOR HISTORY #
+	setopt bang_hist                 # Treat the ! character specially during expansion.
+	setopt extended_history          # Write the history file in the :start:elapsed;command format.
+	setopt inc_append_history        # Write to the history file immediately not when the shell exits.
+	setopt share_history             # Share history between all sessions.
+	setopt hist_expire_dups_first    # Expire duplicate entries first when trimming history.
+	setopt hist_ignore_dups          # Don't record an entry that was just recorded again.
+	setopt hist_ignore_all_dups      # Delete old recorded entry if new entry is a duplicate.
+	setopt hist_find_no_dups         # Do not display a line previously found.
+	setopt hist_save_no_dups         # Don't write duplicate entries in the history file.
+	setopt hist_reduce_blanks        # Remove superfluous blanks before recording entry.
+	setopt hist_verify               # Don't execute immediately upon history expansion.
+fi
+
+# ALIASES #
+### NAVIGATION HELPERS ###
+alias cd="zoxide_ls"
+alias cdi="zoxide_ls --fzf"
+alias ..="cd .."
+alias ....="cd ../.."
+alias ......="cd ../../.."
+alias ........="cd ../../../.."
+alias ..........="cd ../../../../.."
+
+### LISTING && FILE HELPERS ###
+alias l_s_d="lsd -I '.cups' -I '.CFUserTextEncoding' -I '.hushlogin' -I '.DS_Store' -I '.localized' -I 'Movies' -I 'Public' -I '.flutter' -I '.dart-tool' -I '.swiftpm' -I '.npmrc' -I '.npm'"
+alias l="l_s_d --long --group-directories-first"
+alias la="l_s_d --long --almost-all --group-directories-first"
+alias ls="l_s_d --group-directories-first"
+alias lsa="l_s_d --almost-all --group-directories-first"
+alias lss="l_s_d --long --group-directories-first --total-size"
+alias las="l_s_d --long --almost-all --group-directories-first --total-size"
+alias mv="mv -v"
+alias rm="${HOME}/.local/bin/ask_if_rm_or_trashput"
+alias cp="cp -r -v"
+alias diff="icdiff --report-identical-files --line-numbers --whole-file"
+alias cat="bat -p --style=plain,header"
+alias vim="vim -p"
+
+### SYSTEM MANAGEMENT HELPERS ###
+alias icat="kitten icat"
+alias imv="mpv --msg-level=all=no --no-osc --no-load-scripts --directory-mode=ignore"
+alias cls="nitch++ -c"
+alias new="cd && exec zsh"
+alias python="python3"
+alias time="/usr/bin/time -p"
+
+### SYSTEM UTILITY HELPERS ###
+alias listalifn="bat -l zsh ${HOME}/.config/zsh/alifn"
+alias alifn="vim ${HOME}/.config/zsh/alifn"
+alias rc="vim ${HOME}/.config/zsh/.zshrc"
+alias tb="nc termbin.com 9999 && echo 'add l.termbin for color'"
+alias wget="wget --hsts-file=${XDG_CACHE_HOME}/wget-hsts"
+##### GIT HELPERS #####
+alias gb="git branch | cut -c 3- | gum choose | xargs git checkout"
+alias ghclone="gum spin --title='Cloning shtuff...' -- clone_specific_from_gh_repo"
+##### VIMWIKI HELPERS #####
+alias todo="vim -c 'VimwikiIndex 2' -c 'VimwikiGoto Personal/todo'"
+##### NETWORKING #####
+alias mup="mullvad connect"
+alias mdown="mullvad disconnect"
+##### TRASH HELPERS #####
+alias tlist="trash -l"
+alias tempty="trash -e"
+##### GUM HELPERS #####
+alias gum_confirm="gum confirm --prompt.align='center' --prompt.bold --prompt.margin='0 3' --selected.align='center' --selected.bold --unselected.align='center' --unselected.faint"
+### SC-IM HELPERS ###
+alias sc="sc-im"
+### GRC COLORING HELPERS ###
+for cmd in df du env fdisk make gcc g++ id ld lsof netstat ping mount ps ifconfig; do
+	alias $cmd="grc $cmd"
+done
+
+# FUNCTIONS #
+### LISTING && FILE HELPERS ###
+lst() {
+    local all="${1:-.}"
+    local count="${2:-1}"
+    if [[ "$1" =~ ^[0-9]+$ ]]; then
+        count="$1"
+        all="${2:-.}"
+    fi
+    lsd -I "__pyvenv__" "$all" --group-directories-first --tree --depth "$count"
+}
+
+### FILE MANAGEMENT HELPERS ###
+empty() { if gum_confirm --no-show-help "Empty '$1'?"; then truncate --size 0 "$1" && cat "$1"; else return 1; fi; }
+grp() {
+	[[ "$1" =~ [0-9] ]] && context="$1" && shift
+	\grep --context="${context:-0}" --line-number --color=auto "$@"
+}
+pdfl() {
+	if pdflatex "$@"; then
+		[[ -d log && -d output ]] || { mkdir log output; }
+		\mv *.pdf output
+		\mv *.aux *.log *.out *.snm *.toc *.nav log
+	fi
+}
+sl() {
+	__readlinks__() {
+		fd --max-depth 1 --unrestricted --type symlink | while read -r link; do
+			echo -e " $link\e[36m → \e[0m\e]8;;$(readlink $link)\e\\$(readlink $link)\e]8;;\e\\"
+		done
+	}
+
+	[[ -z "$1" ]] && __readlinks__ && return 0
+
+	case "$1" in
+		r|rl|-r|-rl)
+			__readlinks__
+			;;
+		h|-h|help|--help)
+			echo -e "${funcstack[1]}: \e[0;1m[file to symlink]\e[0m \e[0;4m[path to symlink to]\e[0m (defaults to ~/.config/)"
+			return 0
+			;;
+		*)
+			[[ -e "$1" ]] || { echo -e "${funcstack[1]}: '${1}' doesn't exist."; return 1; }
+			local clr_line="\x1b[F\x1b[K\x1b[F\n"
+			local file_name=${1:t}
+			local dest_path="${2:-$HOME/.config/}"
+			local symlink_path="$dest_path"
+			[[ -d $dest_path ]] && symlink_path="$dest_path/$file_name"
+			symlink_path=${symlink_path//\/\/##//}
+
+			if [[ -e "$symlink_path" || -L "$symlink_path" ]]; then
+				echo -e "\e[1m$symlink_path exists.\e[0m"
+				if gum_confirm "Replace it?"; then
+					\rm -rf "$symlink_path" && echo -ne "$clr_line"
+				else
+					echo -ne "$clr_line" && return 1
+				fi
+			fi
+			ln -s "$(realpath "$1")" "$symlink_path"
+			echo -e "$symlink_path\e[36m → \e[0m\e[0;4m$(realpath "$1")\e[0m"
+			;;
+	esac
+}
+compress() {
+    [[ $# -ne 1 ]] && echo -e "${funcstack[1]}: invalid input"  && return 1
+    target="${1%/}"
+    case "$(echo -e "tar.bz2\ntar.gz\ntar.xz\nxz\nbzip2\nrar\ngzip\ntar\nzip\n7z" | fzf --multi --border --height=~70% --header="Choose compression method")" in
+        tar.bz2) tar -cjvf "${target}.tar.bz2" "$1" ;;
+        tar.gz) tar -czvf "${target}.tar.gz" "$1" ;;
+        tar.xz) tar -cJvf "${target}.tar.xz" "$1" ;;
+        xz) xz -9 "$1" ;;
+        bzip2) bzip2 -k "$1" ;;
+        rar) rar a "${target}.rar" "$1" ;;
+        gzip) gzip -k "$1" ;;
+        tar) tar -cvf "${target}.tar" "$1" ;;
+        zip) zip -r "${target}.zip" "$1" ;;
+        7z) 7z a "${target}.7z" "$1" ;;
+        *) echo "Invalid choice." ;;
+    esac
+}
+extract() {
+    [[ $# -ne 1 ]] && echo "${funcstack[1]}: invalid input" && return 1
+    local input_file="$1"
+
+    [[ ! -f "$input_file" ]] && echo "File '$input_file' not found." && return 1
+
+    local extract_dir="${input_file%%.*}_extracted"
+    mkdir -p "$extract_dir" || return 1
+    \mv "$input_file" "$extract_dir" || return 1
+    cd "$extract_dir" || return 1
+
+    local base_name="${input_file##*/}"
+    local file_extension="${base_name##*.}"
+    case "$base_name" in
+        *.tar.gz|*.tgz)
+            tar -xvzf "$input_file" ;;
+        *.tar.bz2|*.tbz)
+            tar -xvjf "$input_file" ;;
+        *.tar.xz|*.txz)
+            tar -xvJf "$input_file" ;;
+        *.tar)
+            tar -xvf "$input_file" ;;
+        *.gz)
+            gunzip "$input_file" ;;
+        *.zip)
+            unzip "$input_file" ;;
+        *.7z)
+            7z x "$input_file" ;;
+        *.rar)
+            unrar x "$input_file" ;;
+        *.bz2)
+            tar -xvf "$input_file" ;;
+        *)
+            echo -e "'$input_file' cannot be extracted. Unsupported file extension: $base_name"
+            return 1
+            ;;
+    esac
+    echo -e "\e[32mExtraction complete in directory: $extract_dir\e[0m"
+}
+rmfd() {
+    [[ -z "$1" ]] && return 1
+    local file="$1"
+    local dir="${2:-/}"
+    if gum_confirm "Would you like to" --affirmative="Find" --negative="Remove"; then
+        fd --hyperlink --hidden --no-ignore  --regex "$file" "$dir"
+    else
+        [[ $? -eq 130 ]] && return 130
+        ${HOME}/.local/bin/ask_if_rm_or_trashput $(fd --hidden --no-ignore  --regex "$file" "$dir")
+    fi
+}
+renamefiles() {
+	local oldnamesfile=$(mktemp) newnamesfile=$(mktemp)
+	fd --type file --type directory --full-path "${1:-.}" | sort -r > "$newnamesfile"
+	cp "$newnamesfile" "$oldnamesfile" &>/dev/null
+	vim "$newnamesfile"
+	if ! cmp -s "$newnamesfile" "$oldnamesfile"; then
+		local -a oldpaths=( ${(f)"$(<"$oldnamesfile")"} )
+		local -a newpaths=( ${(f)"$(<"$newnamesfile")"} )
+		for i in {1..${#oldpaths[@]}}; do
+			local oldpath=${oldpaths[i]} newpath=${newpaths[i]}
+			if [[ "$oldpath" != "$newpath" ]]; then
+				if [[ -e "$oldpath" ]]; then
+					mkdir -p "${newpath:h}"
+					mv "$oldpath" "$newpath" &>/dev/null
+					echo -e "$oldpath\e[36m → \e[0m\e[0;4m$newpath\e[0m"
+				else
+					echo -e "\e[31mPath not found: $oldpath\e[0m"
+				fi
+			fi
+		done
+	fi
+	\rm -f "$oldnamesfile" "$newnamesfile"
+}
+
+### SYSTEM MANAGEMENT HELPERS ###
+cleanvim() {
+	if gum_confirm "Which directory to clean?" --affirmative="Swap" --negative="Tags"; then
+		\rm -rf ~/.cache/vim/swap/*
+		[[ $? -eq 0 ]] && echo -e "\e[1;38;5;114mok:)\e[0m" || echo -e "\e[1;31mno files to clean:(\e[0m"
+	else
+		[[ $? -eq 130 ]] && return 130
+		\rm -rf ~/.cache/vim/ctags/*
+		[[ $? -eq 0 ]] && echo -e "\e[1;38;5;114mok:)\e[0m" || echo -e "\e[1;31munable:(\e[0m"
+	fi
+}
+updateme() {
+	echo -e "\e[1;33m""\e]66;s=2;Brew\a\n""\e[0m"
+	brew update
+	brew upgrade
+	gum spin --title="Cleaning up..." -- brew cleanup
+	echo -e "\e[1;33m""\e]66;s=2;Mac App Store\a\n""\e[0m"
+	if [[ -z $(mas outdated) ]]; then
+		echo -e "\e[1;34m==>\e[0m No updates."
+	else
+		mas upgrade
+	fi
+}
+unmount() {
+	[[ $# -ne 1 ]] && echo "missing disk name" && return 1
+    diskutil unmountDisk "$1"
+	diskutil eject "$1"
+}
+
+### SYSTEM UTILIIY HELPERS
+rtfm() { for cmd in help man tldr; do $cmd "$@" 2>/dev/null && return; done; open -a firefox "https://duckduckgo.com/?t=ffab&q=$@"; }
+hlp() { set -o pipefail; "$@" --help 2>&1 | bat --plain --language=cmd-help; }
+x() { exe=$(fd --max-depth 1 --type executable --absolute-path); if [[ -n "$exe" ]]; then $exe "$@"; else echo "Executable not found."; fi; }
+mfix() { mullvad disconnect && mullvad connect && echo -e "\e[1;38;5;114mok:)\e[0m"; }
+mux() { [[ -z "$1" ]] && tmux || tmux new-session -s "$1"; }
+rg() {
+	kitty +kitten hyperlinked_grep --smart-case --color=always --line-number --no-heading --smart-case "${*:-}" | fzf --ansi --height=~50% --delimiter : --preview 'bat --color=always {1} --highlight-line {2}' --preview-window 'up,60%,border-bottom,+{2}+3/3,~3' --bind 'enter:become(vim {1} +{2})'
+}
+hex() {
+	[[ $# -eq 1 ]] && hex_code="$1" || hex_code="$(pbpaste)"
+	[[ ${hex_code:0:1} == "#" ]] && hex_code="${hex_code:1}"
+	[[ ! $hex_code =~ ^[0-9a-fA-F] ]] && echo "Invalid contents in clipboard." && return 1
+	case "$OSTYPE" in
+		"linux-gnu")
+			notify-send -a "Hex Color Notification" -u low -h string:bgcolor:"#${hex_code}" "This is the color #${hex_code}"
+			;;
+		"darwin")
+			osascript -e "display notification \"This is the color #${hex_code}\" with title \"Hex Color Notification\""
+			;;
+	esac
+	echo -e "\e[48;2;$(( 16#${hex_code:0:2} ));$(( 16#${hex_code:2:2} ));$(( 16#${hex_code:4:2} ))m\e[38;2;255;255;255mThis is the color #$hex_code.\e[0m"
+}
+recterm() {
+	[[ $# -ne 1 ]] && echo "${funcstack[1]}: missing filename" && return 1
+	asciinema rec "${1}.case"
+	agg --theme 353c4a,ffffff,3B4252,BF616A,A3BE8C,EBCB8B,81A1C1,B48EAD,88C0D0,E5E9F0 --font-family "JetBrainsMono Nerd Font, JetBrainsMono NF" --font-size 30 --speed 1.5 "${1}.case" "${1}.gif"
+	\rm -v "${1}.case"
+}
+
+# NOT SURE WHICH IS BETTER FIGURE IT OUT!
+### WEB HELPERS ###
+fetch_html() {
+	wget --recursive --no-parent --page-requisites --convert-links --adjust-extension --wait=1 --limit-rate=100k --no-clobber --backup-converted --html-extension --no-directories --reject robots.txt -U Mozilla "$1"
+}
+
+### PYTHON VENV HELPERS ###
+penv() {
+	local venv_name="__pyvenv__"
+	if gum_confirm --affirmative="Activate" --negative="Deactivate"; then
+        if [[ -z "$VIRTUAL_ENV" ]]; then
+            gum spin --title="Creating virtual environment..." -- python3 -m venv "$venv_name"
+            source "$venv_name/bin/activate"
+            gum spin --title="Setting up virtual environment" -- pip install --upgrade pip
+        fi
+		[[ -f "requirements.txt" ]] && gum spin --title="Installing requirments..." -- pip install -r requirements.txt
+	else
+		[[ $? -eq 130 ]] && return 130
+		if [[ -n "$VIRTUAL_ENV" ]]; then
+			gum spin --title="Creating requirements.txt..." -- pip freeze > requirements.txt
+			deactivate
+			\rm -rf "$venv_name"
+	    else
+		    echo "No virtual environment is active."
+		fi
+	fi
+}
+
+### MODS HELPERS ###
+gpt() {
+	# Check for piped or redirected input first
+	local piped_input=
+	if [[ -p /dev/stdin ]] || [[ -s /dev/stdin ]]; then piped_input=$(\cat); fi
+	if ! [[ -t 0 ]] && [[ $# -eq 0 ]]; then
+		return 1
+	fi
+	local title= prompt= chosen_chat= option=
+	local new_flag=false
+	local list_flag=false
+	local line_count=$(mods --list 2>/dev/null | wc -l)
+	case "$1" in
+		--ls|ls)
+			list_flag=true && shift ;;
+		--new|new)
+			new_flag=true && shift ;;
+		--rma|rma|-rm|rm)
+			if gum_confirm "Remove all conversations?"; then
+				\rm ${HOME}/.local/share/mods/conversations/*
+				echo -e "\e[0;38;5;114mRemoved all conversations :)\e[0m"
+				return 0
+			else
+				return 1
+			fi
+			;;
+		--help|-h)
+			echo "Usage: gpt [--ls | ls | --new | new | --rma | rma]" && return 0 ;;
+	esac
+	if [[ "$list_flag" == true ]]; then
+		[[ "$line_count" -eq 0 ]] && echo -e "\e[31mNo conversations found.\e[0m" && return 1
+		mods --list
+		chosen_chat=$(pbpaste)
+		# Check if chosen_chat is a valid SHA-1 identifier
+		[[ ! "$chosen_chat" =~ ^[a-fA-F0-9]{40}$ ]] && return 1
+		[[ -z "$chosen_chat" ]] && return 1
+		echo -e "\e[5A\e[1K\e[1K\e[1K\e[1K\e[1K"
+		option=$(gum choose --header="Choose option..." "show" "continue" "delete")
+		[[ -z "$option" ]] && return 1
+		case "$option" in
+			"show") mods --show "$chosen_chat" ;;
+			"continue") mods --continue "$chosen_chat" ;;
+			"delete") mods --delete "$chosen_chat" ;;
+		esac
+		return $?
+	fi
+	prompt="$*"
+	if [[ -z "$prompt" ]]; then
+		tempfile=$(mktemp)
+		vim "$tempfile"
+		prompt=$(<"$tempfile")
+		\rm "$tempfile"
+		[[ -z "$prompt" ]] && return 1
+	fi
+	if [[ -n "$piped_input" ]]; then
+		prompt="${prompt:+$prompt:$'\n'}$piped_input"
+	fi
+	if [[ "$line_count" -eq 0 ]] || [[ "$new_flag" == true ]]; then
+		mods --prompt "$prompt"
+		echo -ne "\x1b[F\x1b[K\x1b[F\n"
+	else
+		mods --continue-last --prompt "$prompt"
+		echo -ne "\x1b[F\x1b[K\x1b[F\n"
+	fi
+}
+
+##### YOUTUBE-DOWNLOAD HELPERS #####
+ytd() {
+	# Helper: prompt for filename/directory.
+	__get_filename__() {
+		local type=$1 is_single=$3
+		local prompt=${is_single:+Enter filename for $type}
+		prompt=${prompt:-Enter directory name for $type}
+		filename=$(gum input --placeholder="$prompt" --placeholder.foreground="#87D7FF") || return $?
+	}
+
+	local url=$1 playlist_index=${2:-} choice
+	shift  # shift past URL
+
+  # URL validation.
+  [[ "$url" =~ ^(https?://)?(www\.)?(youtube\.com/|youtu\.be/) ]] || {
+		echo -e "\e[31mInvalid URL.\e[0m"
+		return 1
+	}
+
+  # Choose type based on URL.
+  if [[ "$url" == *playlist* ]]; then
+	  choice=$(echo -en "Video Playlist\nMusic Playlist" | fzf --height=32%) || return
+  else
+	  choice=$(echo -en "Video\nMusic" | fzf --height=32%) || return
+  fi
+
+  local format opts output_dir base
+  case "$choice" in
+	  Video|Video\ Playlist)
+		  base="$HOME/Documents/Mollusk/Media/Videos/Downloads"
+		  format=("bestvideo[ext=mp4]+bestaudio")
+		  opts=(--merge-output-format mp4 -S vcodec:h264 --sub-lang en --write-auto-subs --embed-subs)
+		  if [[ "$choice" == "Video" ]]; then
+			  __get_filename__ video || return
+			  opts+=(--embed-chapters)
+			  output_dir="$base/$filename"
+		  else
+			  if [[ -n $playlist_index ]]; then
+				  __get_filename__ "video in playlist" "$playlist_index" true || return
+				  opts+=(--playlist-items "$playlist_index")
+				  output_dir="$base/$filename"
+			  else
+				  __get_filename__ "video playlist" || return
+				  opts+=(--playlist-start 1 --playlist-end -1)
+				  output_dir="$base/$filename/%(title)s.%(ext)s"
+			  fi
+		  fi
+		  ;;
+	  Music|Music\ Playlist)
+		  base="$HOME/Documents/Mollusk/Media/Music/Downloads"
+		  format=("bestaudio")
+		  opts=(--extract-audio --audio-format m4a)
+		  if [[ "$choice" == "Music" ]]; then
+			  __get_filename__ music || return
+			  output_dir="$base/$filename"
+		  else
+			  if [[ -n $playlist_index ]]; then
+				  __get_filename__ "song in playlist" "$playlist_index" true || return
+				  opts+=(--playlist-items "$playlist_index")
+				  output_dir="$base/$filename"
+			  else
+				  __get_filename__ "music playlist" || return
+				  opts+=(--playlist-start 1 --playlist-end -1)
+				  output_dir="$base/$filename/%(title)s.%(ext)s"
+			  fi
+		  fi
+		  ;;
+	  *) return 1;;
+  esac
+
+  yt-dlp --progress --add-metadata -f "${format[@]}" "${opts[@]}" -o "$output_dir" "$url"
+  unset -f __get_filename__
+}
+
+### MEDIA HELPERS ###
+mpvm() { mpv --no-audio-display --term-playing-msg='\e[1;33mPlaying ${filename}\e[0m' "$1"; }
+mpvmp() { mpv --loop=0 --no-audio-display --term-playing-msg='\e[1;33mPlaying ${filename}\e[0m' --playlist="$1"; }
+make_playlist() {
+	local args=()
+	for ext in {mp3,m4a,flac,wav,mp4,avi,mkv,mov,m4v,wmv}; do
+		args+=(--extension "$ext")
+	done
+	fd --type f "${args[@]}" "${1:-.}" >> "${2:-playlist.pls}"
+}
+cutmedia() {
+	[[ "$#" -ne 2 ]] && echo "Usage: cut_video <timestamp> <filepath>" && return 1
+	local filename=$1
+	local timestamp=$2
+	local output_file="${filename%.*}_edited.${filename##*.}"
+	! [[ -f "$filename" ]] && echo -e "\e[31m$filename not found.\e[0m" && return 1
+	ffmpeg -ss "$timestamp" -i "$filename" -c copy "$output_file"
+	if [[ -e "$output_file" ]]; then
+		echo -e "\e[1;38;5;114mOutput file '$output_file' was successfully created.\e[0m"
+	fi
+}
+
+### VIM/VIMWIKI HELPERS ###
+vimf() {
+	local file=$(fd -H --type f | fzf --multi --height=~40%)
+	[[ -n "$file" ]] && vim ${file[@]} || return 1
+}
+html() {
+  local md_dir="${HOME}/Documents/Mollusk/Documents/Notes/frontend/markdown"
+  local html_dir="${HOME}/Documents/Mollusk/Documents/Notes/frontend/html"
+  if gum_confirm --affirmative="All Files" --negative="Choose File"; then
+    \rm -rf "$html_dir" &>/dev/null
+    vim -c 'HTMLALL' -c 'qa' "$md_dir/index.md"
+  else
+    [[ $? -eq 130 ]] && return 130
+    local files="" selected_file="" html_file="" full_path=""
+	# Splits the fd output into an array and uses pattern substitution to remove the leading markdown dir from each path.
+	files=( ${(@f)$(fd . --type f --extension md "$md_dir")/#${md_dir}\//} )
+    selected_file=$(printf "%s\n" "${files[@]}" | fzf --height=60%) || return 130
+    html_file="${selected_file%.md}.html"
+    full_path="$md_dir/$selected_file"
+    \rm "$html_dir/$html_file" &>/dev/null
+    vim -c 'HTML' -c 'qa' "$full_path"
+  fi
+}
+
+### CLIPBOARD HELPERS && EZ CD ###
+wlc() {
+    { [[ -t 0 ]] && [[ -z "$1" ]] && { pwd | pbcopy; } } || pbcopy "${@:-/dev/stdin}"
+}
+wlp() {
+    local content=$(pbpaste)
+    { [[ -n "$content" ]] && [[ -d "$content" ]] && { cd "$content"; } } || echo -e "$content";
+}
+
+### NAVIGATION HELPERS ###
+m() { cd ${HOME}/Documents/Mollusk/"$1"; }
+media() { cd ${HOME}/Documents/Mollusk/Media/"$1"; }
+md() { cd ${HOME}/Documents/Mollusk/Documents/Notes/frontend/markdown/"$1"; }
+pdf() { cd ${HOME}/Documents/Mollusk/Documents/PDF/"$1"; }
+mds() { cd ${HOME}/Documents/Mollusk/Documents/Notes/frontend/markdown/School/Spring2025/"$1"; }
+pdfs() { cd ${HOME}/Documents/Mollusk/Documents/PDF/School/Spring2025/"$1"; }
+n() { cd ${HOME}/Documents/Mollusk/Documents/Notes/"$1"; }
+eh() { cd ${HOME}/Repos/Eh/"$1"; }
+ah() { cd ${HOME}/Repos/Ah/; }
+d() { cd ${HOME}/Repos/Ah/Dotfiles/"$1"; }
+b() { cd ${HOME}/Repos/Ah/Dotfiles/local/bin/"$1"; }
+repos() { cd ${HOME}/Repos/"$1"; }
+vw() { vim -c "VimwikiIndex 2" -c "VimwikiGoto ${1:-index}"; }
+sw() { vim -c "VimwikiIndex 2" -c "VimwikiGoto School/Spring2025/${1:-README}"; }
+root() {
+	git rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 1
+	cd "$(git rev-parse --show-toplevel)"
+}
+diary() {
+	if gum_confirm "" --affirmative="Index" --negative="New Entry"; then
+		vim -c 'VimwikiDiaryIndex 1'
+	else
+		vim -c 'VimwikiMakeDiaryNote 1' -c 'call InsertTime()'
+	fi
+}
+zoxide_ls() {
+	if [[ "$1" == "--fzf" ]]; then
+		__zoxide_zi
+		if [[ "$PWD" != ${HOME} ]]; then
+			ls
+		fi
+	else
+		if __zoxide_z "$@"; then
+			if [[ "$PWD" != ${HOME} ]]; then
+				ls
+			fi
+		fi
+	fi
+}
+swap() {
+	local pdf_dir="${HOME}/Documents/Mollusk/Documents/PDF"
+	local md_dir="${HOME}/Documents/Mollusk/Documents/Notes/frontend/markdown"
+	local curr_dir=$PWD
+	case "$curr_dir" in
+		*/PDF/*)
+			local target_dir="$md_dir/${curr_dir#"$pdf_dir"/}"
+			local dir_type="Markdown"
+			;;
+		*/markdown/*)
+			local target_dir="$pdf_dir/${curr_dir#"$md_dir"/}"
+			local dir_type="PDF"
+			;;
+		*)
+			echo -e "\e[31mNot in a PDF or Markdown directory.\e[0m"
+			return
+			;;
+	esac
+	if [[ -d "$target_dir" ]]; then
+		echo -e  "\e[1;4;36m""\e]66;s=2;$dir_type\a\n\e[0m"
+		cd "$target_dir"
+	else
+		echo -e "\e[31mCorresponding $dir_type directory not found.\e[0m"
+	fi
+}
+
+### GIT HELPERS ###
+gitcommit() { git add "$(git rev-parse --show-toplevel)" && git commit --message "$(gum input)" -m "$(gum write)"; }
+gitpush() { git add "$(git rev-parse --show-toplevel)" && git commit --all --message "$1" && git push origin main; }
+gitpush_branch() { git add "$(git rev-parse --show-toplevel)" && git commit --all --messge "$1" && git push origin "$2"; }
+gpc() {
+	local git_diff="" commit_msg="" output="" push_output="" repo_name="" ahead_count="" entry="" flag="" commit_status_header="" commit_status_body="" commit_status="" push_status="" inrepo=1
+	local -a allpaths=("/path/one" "/path/two" "/path/three")
+
+	git rev-parse --is-inside-work-tree &>/dev/null && { allpaths=("$PWD"); } || inrepo=0 flag=$'Commit\nPush'
+	[[ $1 == "commit" ]] && flag='Commit'
+	[[ -z $flag ]] && { flag=$(echo -en "Commit\nPush" | fzf --multi --height=40%) || return 1; }
+
+	for currentpath in "${allpaths[@]}"; do
+		repo_name=${$(git -C "$currentpath" rev-parse --show-toplevel):t}
+		git_diff=$(git -C "$currentpath" diff)
+		[[ -z $git_diff ]] && git_diff=$(git -C "$currentpath" status --short)
+		[[ -z $git_diff ]] && output+="${repo_name}"$'\n'
+		for action in "${(f)flag}"; do
+			case $action in
+				Commit)
+					[[ -z $git_diff ]] && continue
+					echo -e "\n\e[38;5;123m""\e]66;s=2;Commiting changes to $repo_name\a\n""\e[0m"
+					commit_msg=$(mods --quiet --no-limit --raw --no-cache --model gpt-4o-mini --role "githelper" "Write a commit message for this git information: $git_diff" \
+						| gsed '1 s/```//g' | gsed '1{p;d}; s/[`*#]//g' | gsed 's/plaintext//g')
+					[[ -n $commit_msg ]] && git -C "$currentpath" add -A :/ && git -C "$currentpath" commit --all --message "$commit_msg"
+					;;
+				Push)
+					push_content=$(git -C "$currentpath" cherry -v)
+					if [[ -n "$push_content" ]]; then
+						echo -e "\n\e[38;5;123m""\e]66;s=2;Pushing changes to $repo_name\a\n""\e[0m"
+						git -C "$currentpath" push origin main
+					fi
+					;;
+			esac
+		done
+		ahead_count=$(git -C "$currentpath" rev-list --count origin/main..HEAD)
+		(( ahead_count > 0 )) && entry="$repo_name is $ahead_count $([[ $ahead_count -eq 1 ]] && echo commit || echo commits) ahead" && push_output=${push_output:+$push_output$'\n'}"$entry"
+	done
+	if [[ -n $output ]]; then
+		echo -e "\n\e[38;5;218m""\e]66;s=2;No changes to commit for\a\n" "\e[0m"
+        if (( $(echo "$output" | wc -w) == 1 )); then
+		    echo -ne "\e[38;5;7m$output\e[0m"
+        else
+		    echo -e "\e[38;5;7m$output\e[0m"
+        fi
+	fi
+	(( inrepo )) && echo
+	[[ -n $push_output ]] && echo -e "\e[38;5;189m$push_output\e[0m" || return 0
+}

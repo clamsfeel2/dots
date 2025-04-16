@@ -1,5 +1,3 @@
-# -*- mode: sh; mode: sh-bash -*-
-
 ## This is a template for "~/.blerc".
 ##
 ## To use ble.sh in bash, please set up "~/.bashrc" as follows:
@@ -31,7 +29,7 @@
 ## The following setting specifies the pager used by ble.sh.  This is used to
 ## show the help of commands (f1).
 
-#bleopt pager=less
+bleopt pager=bat
 
 ## The following setting specifies the editor used by ble.sh.  This is used for
 ## the widget edit-and-execute (C-x C-e) and editor for a large amount of
@@ -99,7 +97,7 @@
 ## enabled. When an empty string is set, the operations are switched to logical
 ## ones.
 
-#bleopt edit_forced_textmap=1
+#bleopt edit_forced_textmap=
 
 
 ## The following option controls the interpretation of lines when going to the
@@ -116,7 +114,7 @@
 ## magic-space with a colon-separated list of expansion types. "history",
 ## "sabbrev", and "alias" can be specified.
 
-#bleopt edit_magic_expand=history:sabbrev
+#bleopt edit_magic_expand=
 
 
 ## This option configures the detailed behavior of the widget "magic-space"
@@ -191,7 +189,8 @@
 ## command output is not ended with newlines. The value can contain ANSI escape
 ## sequences.
 
-#bleopt prompt_eol_mark=$'\e[94m[ble: EOF]\e[m'
+#bleopt prompt_eol_mark=$'\e[93m[ble: EOF]\e[m'
+bleopt prompt_eol_mark='⏎'
 
 
 ## "prompt_ruler" specifies the ruler between the previous command and the
@@ -235,6 +234,7 @@
 ## exit status will not be shown.  The value can contain ANSI escape sequences.
 
 #bleopt exec_errexit_mark=$'\e[91m[ble: exit %d]\e[m'
+bleopt exec_errexit_mark=$'\e[91m[exit %d]\e[m'
 
 
 ## "exec_elapsed_mark" specifies the format of the command execution time
@@ -252,8 +252,9 @@
 ## percentage of the CPU core usage in integer, which can be calculated by
 ## "(usr+sys)*100/real".  The other values are all in unit of milliseconds.
 
-#bleopt exec_elapsed_mark=$'\e[94m[ble: elapsed %s (CPU %s%%)]\e[m'
-#bleopt exec_elapsed_enabled='usr+sys>=10000'
+# bleopt exec_elapsed_mark=$'\e[94m[ble: elapsed %s (CPU %s%%)]\e[m'
+# bleopt exec_elapsed_enabled='usr+sys>=10000'
+bleopt exec_elapsed_enabled=
 
 
 ## The following setting controls the exit when jobs are remaining. When an
@@ -554,7 +555,7 @@
 ## If "complete_auto_history" has non-empty values, auto-complete searches
 ## matching command lines from history.
 
-#bleopt complete_auto_history=1
+# bleopt complete_auto_history=1
 
 
 ## The following setting controls the delay of auto-complete after the last
@@ -775,7 +776,6 @@
 
 #bleopt term_index_colors=256
 
-
 ## The setting "term_true_colors" specifies the format of 24-bit color escape
 ## sequences supported by your terminal.  The value "semicolon" indicates the
 ## format "CSI 3 8 ; 2 ; R ; G ; B m".  The value "colon" indicates the format
@@ -785,13 +785,6 @@
 ## colors.
 
 #bleopt term_true_colors=semicolon
-
-
-## The setting "filename_ls_colors" can be used to import the filename coloring
-## scheme by the environment variable LS_COLORS.
-
-#bleopt filename_ls_colors="$LS_COLORS"
-
 
 ## The following settings enable or disable the syntax highlighting.  When the
 ## setting "highlight_syntax" has a non-empty value, the syntax highlighting is
@@ -805,7 +798,6 @@
 #bleopt highlight_syntax=1
 #bleopt highlight_filename=1
 #bleopt highlight_variable=1
-
 
 ## The following settings control the timeout and user-input cancellation of
 ## the pathname expansions performed in the syntax highlighting.  When the word
@@ -825,9 +817,7 @@
 #bleopt highlight_timeout_async=5000
 #bleopt syntax_eval_polling_interval=50
 
-
-## The following settings specify graphic styles of each faces.
-
+# COLORS
 ble-face -s region                    fg=white
 ble-face -s region_insert             fg=grey
 ble-face -s region_match              fg=white
@@ -895,7 +885,6 @@ ble-face -s filename_directory_sticky fg=#81a2be,bold
 #ble-face -s varname_readonly          fg=200
 #ble-face -s varname_transform         fg=29,bold
 #ble-face -s varname_unset             fg=124
-
 ble-face -s cmdinfo_cd_cdpath         fg=26
 
 ##-----------------------------------------------------------------------------
@@ -937,52 +926,6 @@ ble-face -s cmdinfo_cd_cdpath         fg=26
 #ble-bind -f M-w 'copy-region-or copy-uword'
 
 ##-----------------------------------------------------------------------------
-## Settings for Emacs mode
-
-function blerc/emacs-load-hook {
-  #----------------------------------------------------------------------------
-  # Settings for the mode indicator
-
-  ## The following option specifies the content of the mode indicator shown in
-  ## the info line as a prompt sequence.
-
-  #bleopt prompt_emacs_mode_indicator='\q{keymap:emacs/mode-indicator}'
-
-
-  ## The following option specifies the multiline mode name used in the prompt
-  ## sequence \q{keymap:emacs/mode-indicator} in the multiline editing mode.
-
-  # default
-  #bleopt keymap_emacs_mode_string_multiline=$'\e[1m-- MULTILINE --\e[m'
-  # do not show the mode name
-  #bleopt keymap_emacs_mode_string_multiline=
-
-  #----------------------------------------------------------------------------
-  # Keybindings
-
-  ## The default mapping of RET and C-m inserts newline with multiline commands
-  ## or incomplete commands.  With the following setting, RET and C-m always
-  ## causes the execution of the command even in the multiline mode or when the
-  ## command is not syntactically completed.
-
-  #ble-bind -f 'C-m' accept-line
-  #ble-bind -f 'RET' accept-line
-
-
-  ## With the following settings, M-backspace (whose actual key sequence
-  ## depends on your terminal) will kill the backward word as in the default
-  ## readline.
-
-  #ble-bind -f 'M-C-?' kill-backward-cword
-  #ble-bind -f 'M-DEL' kill-backward-cword
-  #ble-bind -f 'M-C-h' kill-backward-cword
-  #ble-bind -f 'M-BS'  kill-backward-cword
-
-  return 0
-}
-blehook/eval-after-load keymap_emacs blerc/emacs-load-hook
-
-##-----------------------------------------------------------------------------
 ## Settings for Vim mode
 
 function blerc/vim-load-hook {
@@ -1011,7 +954,7 @@ function blerc/vim-load-hook {
   ## The following options specify the name of modes in
   ## \q{keymap:vi/mode-indicator}.
 
-  bleopt keymap_vi_mode_name_insert=I
+  #bleopt keymap_vi_mode_name_insert=I
   #bleopt keymap_vi_mode_name_replace=REPLACE
   #bleopt keymap_vi_mode_name_vreplace=VREPLACE
   #bleopt keymap_vi_mode_name_visual=VISUAL
@@ -1047,6 +990,11 @@ function blerc/vim-load-hook {
 
   #ble-bind -m vi_imap -f 'C-RET' 'accept-line'
 
+# VIM INPUTRC BINDINGS FOR BLOCK TO BEAM CURSOR
+ble-bind -m vi_nmap --cursor 2   # Normal mode cursor shape
+ble-bind -m vi_imap --cursor 5   # Insert mode cursor shape
+ble-bind -m vi_xmap --cursor 2   # Visual mode cursor shape
+ble-bind -m vi_smap --cursor 2   # Select mode cursor shape
   ## The default mapping of <M-backspace> (whose actual key sequence depends on
   ## your terminal) copies the previous shell word in the kill ring.  Instead,
   ## the following settings will kill the backward word as in the default
@@ -1205,92 +1153,3 @@ function blerc/vim-load-hook {
   #bleopt vim_airline_symbol_dirty=$'\u26A1'
 }
 blehook/eval-after-load keymap_vi blerc/vim-load-hook
-
-##-----------------------------------------------------------------------------
-## Internal settings
-
-## This option sets the interval of checking new user inputs.  The value is
-## evaluated as an arithmetic expression.  On the evaluation, a shell variable
-## "ble_util_idle_elapsed" is provided for the time since the last user input
-## in millisecond.  This option is used for the polling for the background
-## execution when there is no user inputs.
-
-#bleopt idle_interval='ble_util_idle_elapsed>600000?500:(ble_util_idle_elapsed>60000?200:(ble_util_idle_elapsed>5000?100:20))'
-
-
-## This option specifies a colon-separated list of custom search paths of "ble-import".
-
-#bleopt import_path="${XDG_DATA_HOME:-$HOME/.local/share}/blesh/local"
-
-
-## When a non-empty value is specified to this option, displays the internal
-## syntax analysis information and the syntax tree.  This is only effective in
-## devel versions.
-
-#bleopt syntax_debug=
-
-
-## When the option "debug_xtrace" contains a non-empty value, xtrace (set -x)
-## is enabled for the internal processing of ble.sh.  The value is used for the
-## xtrace output log filename. [ Caution: The file size of the log file can
-## soon grow up to hundred megabytes or to gigabytes. ]  The option
-## "debug_xtrace_ps4" specifies the value of PS4 for xtrace enabled by
-## "debug_xtrace".
-
-#bleopt debug_xtrace=~/blesh.xtrace
-#bleopt debug_xtrace_ps4='+ '
-
-
-## When the option "debug_idle" contains a non-empty value, the background
-## tasks currently running are shown in the info panel.
-
-#bleopt debug_idle=1
-
-
-## [The setting "openat_base" needs to be set before ble.sh is loaded or
-## specified in the source options.  Therefore the value should be assigned
-## directly to the shell variable "bleopt_openat_base" instead of using
-## "bleopt" command.]
-##
-## This setting "openat_base" specifies the starting number of the file
-## descriptors which ble.sh internally uses in Bash 4.0 or lower.  The value of
-## this setting is used as the number for the first file descriptor of internal
-## use, and the next value is used for the second file descriptor, and so on.
-## When you want to use the default value 30 and succeeding number 31, 32,
-## etc. for other purposes, please set to this settings another value which
-## does not conflict with file descriptors of other purposes.
-
-# echo "usage: e.g. source out/ble.sh -o openat_base=30"
-
-
-## It specifies the context of the command execution.  The value "gexec"
-## specifies that the user command is evaluated in global contexts.  The value
-## "exec" (ble-0.3 and before) specified that the user command is evaluated in
-## a function, but the support is removed in ble-0.4 because this is only
-## remained for a debugging purpose and not tested well.
-
-#bleopt internal_exec_type=gexec
-
-
-## This option sets the message that Bash outputs when "C-d" is input by user.
-## This value is used to detect that the user inputs "C-d" in Bash 3.
-
-#bleopt internal_ignoreeof_trap='Use "exit" to leave the shell.'
-
-
-## This option controls the output of stack dump when assertion is failed in
-## ble.sh.  When the value is evaluated to be non-zero, the stack dump is
-## printed for assertion failures.
-
-#bleopt internal_stackdump_enabled=0
-
-
-## When a non-empty value is specified to this option, the standard output and
-## standard error from Bash is not output to the terminal.  When the value is
-## empty, ble.sh tries to realize the line editing allowing Bash to output its
-## own standard output and error.  This setting has a flickering problem and
-## only left for debugging purpose, so it is not tested.  Normally a non-empty
-## value should be specified so as to suppress the standard output and error
-## from Bash.
-
-#bleopt internal_suppress_bash_output=1
