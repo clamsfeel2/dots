@@ -1,4 +1,4 @@
-[manager]
+[mgr]
 cwd = { fg = "#81a1c1" }
 hovered         = { fg = "#2e3440", bg = "#88c0d0" }
 preview_hovered = { fg = "#2e3440", bg = "#81a1c1", underline = false }

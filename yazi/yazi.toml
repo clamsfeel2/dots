@@ -1,4 +1,4 @@
-[manager]
+[mgr]
 ratio = [2, 4, 5]
 sort_by = "alphabetical"
 sort_sensitive = false
@@ -9,38 +9,76 @@ mouse_events = ["click", "scroll", "move"]
 
 [opener]
 edit = [
-	{ run = 'vim "$@"', block = true },
+  { run = 'nvim "$@"', block = true, desc = "Neovim" },
+  { run = 'open -a "TextEdit" "$@"', orphan = true, desc = "TextEdit" },
 ]
-play = [
-	{ run = 'mpv "$@"', orphan = true },
+word = [{ run = 'open -a "Microsoft Word" "$@"', orphan = true, desc = "Word" }]
+excel = [
+  { run = 'open -a "Microsoft Excel" "$@"', orphan = true, desc = "Excel" },
 ]
-open = [
-	{ run = 'xdg-open "$@"', orphan = true },
+powerpoint = [
+  { run = 'open -a "Microsoft PowerPoint" "$@"', orphan = true, desc = "PowerPoint" },
 ]
-view_img = [
-	{ run = 'mpv --msg-level=all=no --no-osc --no-load-scripts --directory-mode=ignore "$@"', orphan = true, desc = "imv" },
+pdf = [
+  { run = 'open -a "Preview" "$@"', orphan = true, desc = "Preview" },
+  { run = 'open -a "Adobe Acrobat Reader DC" "$@"', orphan = true, desc = "Adobe Acrobat" },
 ]
-view_pdf = [
-	{ run = 'zathura --fork "$@"', orphan = true, desc = "zathura" },
+image = [
+  { run = 'open -a "Preview" "$@"', orphan = true, desc = "Preview" },
+  { run = 'open -a "Pixea" "$@"', orphan = true, desc = "Pixea" },
 ]
-libreoffice = [
-	{ run = 'gum spin --title "loading libreoffice..." -- libreoffice "$@"', block = true, orphan = true, desc = "libreoffice"},
+watch = [
+  { run = 'mpv "$@"', orphan = true, desc = "mpv" },
+  { run = 'open -a "QuickTime Player" "$@"', orphan = true, desc = "QuickTime" },
 ]
 listen = [
-	{ run = '$HOME/.config/yazi/scripts/mpv_music_helper.sh "$@"', block = true },
+  { run = '$HOME/.config/yazi/scripts/mpv_yazi_wrapper.sh "$@"', block = true, desc = "mpvm" },
+  { run = 'open -a "Music" "$@"', orphan = true, desc = "Apple Music" },
 ]
+
+firefox = [
+  { run = 'open -a firefox "$@"', orphan = true, desc = "Default App" },
+]
+finder = [{ run = 'open -R "$@"', orphan = true, desc = "Show in Finder" }]
+default = [{ run = 'open "$@"', orphan = true, desc = "Default App" }]
 
 [open]
 rules = [
-	{ mime = "text/*", use = "edit" },
-	{ mime = "video/*", use = "play" },
-	{ mime = "image/*", use = "view_img" },
-	{ mime = "audio/*", use = "listen" },
-	{ mime = "*/json", use = "edit" },
-    { mime = "*/xml", use = "edit" },
-    { name = "*.html", use = [ "open", "edit" ] },
-    { mime = "*/pdf", use = "view_pdf" },
-    { mime = "*/vnd.ms-excel", use = "libreoffice" },
-    { mime = "*/vnd.ms-powerpoint", use = "libreoffice" },
-    { mime = "*/vnd.openxmlformats-officedocument.wordprocessingml.document", use = "libreoffice" },
+  # Audio
+  { mime = "audio/*", use = ["listen", "default", "finder"] },
+  { name = "*.pls", use = ["listen", "default", "finder"] },
+
+  # Images
+  { mime = "image/*", use = ["image", "default", "finder"] },
+
+  # Video
+  { mime = "video/*", use = ["watch", "default", "finder"] },
+
+  # Text
+  { mime = "text/*", use = ["edit", "word", "default", "finder"] },
+
+  # Word docs
+  { name = "*.doc", use = ["word", "edit", "default", "finder"] },
+  { name = "*.docx", use = ["word", "edit", "default", "finder"] },
+
+  # Excel
+  { name = "*.xls", use = ["excel", "default", "finder"] },
+  { name = "*.xlsx", use = ["excel", "default", "finder"] },
+
+  # PowerPoint
+  { name = "*.ppt", use = ["powerpoint", "default", "finder"] },
+  { name = "*.pptx", use = ["powerpoint", "default", "finder"] },
+
+  # PDF
+  { mime = "application/pdf", use = ["pdf", "default", "finder"] },
+
+  # HTML
+  { name = "*.html", use = ["edit", "firefox", "default", "finder"] },
+
+  # Fallback for all others
+  { mime = "*/*", use = ["edit", "default", "finder"] },
 ]
+
+[preview]
+max_width = 3000
+max_height = 3000
