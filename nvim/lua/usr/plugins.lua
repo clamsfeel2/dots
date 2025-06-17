@@ -1,7 +1,6 @@
 local lazy = {}
 
 function lazy.install(path)
-  -- If the directory does not exist, create its parent and clone into it
   local uv = vim.uv
   if not uv.fs_stat(path) then
     print("Installing lazy plugins manager...")

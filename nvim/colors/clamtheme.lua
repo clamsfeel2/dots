@@ -157,16 +157,11 @@ end
 
 -- Diff namespace than 0 + unneded?
 set(1, "MyNotifyBackground", { bg = "NONE", fg = "#cdd6f4" })
--- set(0, "MyNotifyBorder", { fg = "#89b4fa", bg = "#ffffff" })
--- set(0, "MyNotifyBackground", { bg = "#282c34" })
--- set(0, "MyNotifyBorder",     { fg = "#61afef", bg = "#282c34" })
--- set(0, "NormalFloat", { bg = "NONE", fg = "#cdd6f4" })
--- set(0, "TaskKeyword", { fg = "#EBCB8B" })
 
 -- Syntax Matching
 vim.fn.matchadd("TaskKeyword", [[\v(TODO|FIXME|NOTE|HACK)]])
 
--- VIMWIKI/MARKDOWN HEADER COLORING SETUP IN ONE TABLE --
+-- VIMWIKI/MARKDOWN HEADER COLORING SETUP
 local vimwiki_cfg = {
   header_colors = { "#EBCB8B", "#CC8B66", "#A3BE8C", "#B48EAD", "#88C0D0", "#81A1C1" },
 }
@@ -208,4 +203,3 @@ function vimwiki_cfg:setup()
   })
 end
 vimwiki_cfg:setup()
--- END VIMWIKI SETUP --
